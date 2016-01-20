@@ -8,6 +8,9 @@ TO DO: get semtypes for:
 """
 
 import xml.etree.ElementTree as ET
+#from src.constructions import *
+from src.frame_relation import FrameRelation
+from src.lexical_units import *
 
 
 class Node(object):
@@ -27,6 +30,14 @@ class Frame(Node):
         self.xml_definition = xml_def
         self.definition = definition
         self.ID = ID
+
+    def compatible_elements(self, e1, e2):
+        return (e1.name not in e2.excludes) and (e2.name not in e1.excludes) and (e1.name != e2.name)
+
+    def get_element(self, name):
+        for element in self.elements:
+            if element.name == name:
+                return element
 
     def add_fe_relation(self, relation):
         self.fe_relations.append(relation)
@@ -63,6 +74,7 @@ class FrameElement(object):
         self.coreType = core
         self.frame_name = framename
         self.semtype=semtype
+        self.excludes = []
 
     def __str__(self):
         return self.name
@@ -76,34 +88,11 @@ class FrameElement(object):
     def set_semtype(self, sem):
         self.semtype = sem
 
-class LexicalUnit(object):
-    def __init__(self, name, pos, framename, ID):
-        self.name = name
-        self.pos = pos
-        self.frame_name = framename
-        self.semtype = None
-        self.ID = ID
+    def add_excludes(self, excluded_element):
+        self.excludes.append(excluded_element)
 
-    def __str__(self):
-        return self.name
 
-    def __repr__(self):
-        return self.name
 
-    def set_semtype(self, sem):
-        self.semtype = sem
-
-class FrameRelation(object):
-    def __init__(self, relation_type, related_frames):
-        self.relation_type = relation_type
-        self.related_frames = related_frames
-
-    def __str__(self):
-        return self.relation_type
-
-    def __repr__(self):
-        related = [frame.name for frame in self.related_frames]
-        return "{}: {}".format(self.relation_type, str(related))
 
 class SemType(object):
     def __init__(self, name, ID):
@@ -111,12 +100,15 @@ class SemType(object):
         self.ID = ID
 
 def strip_definition(definition):
-    return ''.join(ET.fromstring(definition).itertext())
+    # The encoding is necessary for python2.7
+    encoded = ET.fromstring(definition.encode('utf-8'))
+    return ''.join(encoded.itertext())
 
 
 class FrameBuilder(object):
     def __init__(self, replace_tag):
         self.replace_tag = replace_tag
+        self.lu_path = "fndata-1.6/lu/"
 
     def build_frame(self, xml_path):
         tree = ET.parse(xml_path)
@@ -134,7 +126,9 @@ class FrameBuilder(object):
             if tag == "FE":
                 elements.append(self.build_FE(child, name))
             elif tag == "lexUnit":
-                lexemes.append(self.build_LU(child, name))
+                lu = self.build_LU(child, name)
+                if lu:
+                    lexemes.append(lu)
             elif tag == "frameRelation":
                 relation = child.attrib['type']
                 related = [r.text for r in child.getchildren()]
@@ -162,7 +156,10 @@ class FrameBuilder(object):
             if t == "semType":
                 s = SemType(c2.attrib['name'], c2.attrib['ID'])
                 element.set_semtype(s)
+            if t == "excludesFE":
+                element.add_excludes(c2.attrib['name'])
         return element
+
 
     def build_LU(self, child, name):
         atts = child.attrib
@@ -171,68 +168,24 @@ class FrameBuilder(object):
             t = c2.tag.replace(self.replace_tag, "")
             if t == "semType":
                 s = SemType(c2.attrib['name'], c2.attrib['ID'])
-        lu = LexicalUnit(atts['name'], atts['POS'], name, atts['ID'])
+        ID = atts['ID']
+        lu = ShallowLU(atts['name'], atts['POS'], name, atts['ID'], atts['status'])
         if s:
             lu.set_semtype(s)
         return lu
-
-
-
-
-"""
-def parse_xml_frame(xml_path):
-    replace_tag = "{http://framenet.icsi.berkeley.edu}"
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-    name = root.attrib['name']
-    ID = root.attrib['ID']
-    elements = []
-    lexemes = []
-    relations = []
-    parents = []
-    children=[]
-    definition = ""
-    for child in root:
-        tag = child.tag.replace(replace_tag, "")
-        if tag == "FE":
-            atts = child.attrib
-            element = FrameElement(atts['name'], atts['abbrev'], atts['coreType'])
-            for c2 in child.getchildren():
-                t = c2.tag.replace(replace_tag, "")
-                if t == "semType":
-                    s = SemType(c2.attrib['name'], c2.attrib['ID'])
-                    element.set_semtype(s)
-            elements.append(element)
-        elif tag == "lexUnit":
-            atts = child.attrib
-            s = None
-            for c2 in child.getchildren():
-                t = c2.tag.replace(replace_tag, "")
-                if t == "semType":
-                    s = SemType(c2.attrib['name'], c2.attrib['ID'])
-            lu = LexicalUnit(atts['name'], atts['POS'])
+        """
+        if atts['status'] != "Problem":
+            print(name)
+            path = self.lu_path + "lu{}.xml".format(ID)
+            lu = self.parse_lu_xml(path)
             if s:
                 lu.set_semtype(s)
-            lexemes.append(lu)
-        elif tag == "frameRelation":
-            relation = child.attrib['type']
-            related = [r.text for r in child.getchildren()]
-            if len(related) > 0:
-                if relation == "Inherits from":
-                    parents += related
-                if relation == 'Is Inherited by':
-                    children += related
-                fr = FrameRelation(relation, related)
-                #fr = FrameRelation(atts['type'])
-                #relations.append(fr)
-                relations.append(fr)
-        elif tag == "definition":
-            xml_def = child.text
-            #definition_xml = ET.fromstring(child)
-            definition = strip_definition(child.text)
-    frame = Frame(name, elements, lexemes, relations, parents, children, definition, xml_def, ID)
-    return frame
-    """
+            return lu
+        """
+
+
+
+
 
 
 

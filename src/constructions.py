@@ -55,14 +55,11 @@ class FEGroupRealization(object):
 # GF: Grammatical function
 # PT: Phrase Type
 # FE: Frame Element
-def parse_lu_xml(xml_path, fn):
+def parse_lu_xml(xml_path): #, fn):
 	replace_tag = "{http://framenet.icsi.berkeley.edu}"
 	tree = ET.parse(xml_path)
 	root = tree.getroot()
 	name, POS, frame, ID = root.attrib['name'], root.attrib['POS'], root.attrib['frame'], root.attrib['ID']
-	#definition = root.attrib['definition']
-	frame = fn.get_frame(frame)
-	
 	for child in root.getchildren():
 		tag = child.tag.replace(replace_tag, "")
 		if tag == "valences":
@@ -70,10 +67,6 @@ def parse_lu_xml(xml_path, fn):
 			break
 		elif tag == "definition":
 			definition = child.text
-		#elif tag == "subCorpus":
-		#	print("here")
-		#else:
-		#	print(tag)
 	valences = valence.getchildren()
 	actual_valences = []
 	for v in valences:
@@ -92,19 +85,6 @@ def parse_lu_xml(xml_path, fn):
 					#print(ID)
 					#print(vUnit.attrib)
 			actual_valences.append(group_realization)
-	"""
-		for realization in v.getchildren():
-			tag = realization.tag.replace(replace_tag, "")
-			if tag == "FE":
-				FE_name = realization.attrib['name']
-			if tag == "pattern":
-				#print("here")
-				valenceUnit = realization.getchildren()[0]
-				gf, pt, fe = valenceUnit.attrib['GF'], valenceUnit.attrib['PT'], valenceUnit.attrib['FE']
-				val = Valence(frame, gf, pt, fe)
-				actual_valences.append(val)
-				#lu.add_valence(val)
-	"""
 	lu = LexicalUnitConstruction(name, POS, frame, ID, definition)
 	lu.add_valences(actual_valences)
 	return lu

@@ -69,7 +69,6 @@ class FrameNet(object):
 		self.xml_definitions_to_frames = {}
 		self.ID_to_frames = {}
 
-
 	def highest_common_supertype(self, f1, f2):
 		try:
 			return self.typesystem.highest_common_supertype(f1, f2, self)
@@ -159,10 +158,10 @@ class FrameNet(object):
 				new_element = self.get_frame(element.name)
 				element.frame = new_element
 				
-
-
-
 	def build_typesystem(self):
 		self.typesystem = FrameTypeSystem(self)
+	
+
+
 
 

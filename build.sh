@@ -1,3 +1,3 @@
 #!/bin/bash
-
-python -i main.py fndata-1.6/frame/ fndata-1.6/frRelation.xml
+# If necessary, replace the paths below with the full-paths on your computer.
+python -i main.py fndata-1.6/
