@@ -68,6 +68,7 @@ class FrameNet(object):
 		self.definitions_to_frames = {}
 		self.xml_definitions_to_frames = {}
 		self.ID_to_frames = {}
+		self.untagged_lus = []
 
 	def highest_common_supertype(self, f1, f2):
 		try:
@@ -127,6 +128,8 @@ class FrameNet(object):
 		for lu in frame.lexicalUnits:
 			#lex = lu.name.split(".")[0]
 			#TODO: How to represent?
+			untag = lu.name.split(".")[0]
+			self.untagged_lus.append(untag)
 			lex = lu.name
 			if lex not in self.lexemes_to_frames:
 				self.lexemes_to_frames[lex] = []
@@ -160,6 +163,9 @@ class FrameNet(object):
 				
 	def build_typesystem(self):
 		self.typesystem = FrameTypeSystem(self)
+
+
+
 	
 
 

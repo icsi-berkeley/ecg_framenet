@@ -48,7 +48,7 @@ class Valence(object):
 		return """Frame: {}, GF: {}, PT: {}, FE: {}\n""".format(self.frame, self.gf, self.pt, self.fe)
 
 	def __eq__(self, other):
-		return self.frame == other.frame and self.gf == other.gf and self.pt == other.pt and self.fe==other.fe
+		return self.gf == other.gf and self.pt == other.pt and self.fe==other.fe #and (self.frame == other.frame)
 
 class ValencePattern(object):
 	def __init__(self, frame, total, lu):

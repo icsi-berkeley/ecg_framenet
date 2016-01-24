@@ -1,7 +1,9 @@
 class ECGUtilities(object):
 
 	def format_schema(frame):
-		semtype_to_frame = {'Physical_object': "Entity"}
+		semtype_to_frame = {'Physical_object': "Entity",
+							'Artifact': "Artifact",
+							'Living_thing': "Biological_entity"}
 		forbidden = ['construction', 'Construction',
 					'Situation', 'situation', 'map', "Map",
 					"Form", "form",
@@ -16,6 +18,10 @@ class ECGUtilities(object):
 			if relation.relation_type == "Uses":
 				uses = [r for r in relation.related_frames]
 				#print(relation.related_frames)
+		causes = []
+		for relation in frame.relations:
+			if relation.relation_type == "Is Causative of":
+				causes = [r for r in relation.related_frames]
 		parents = None
 		if len(frame.parents) > 0:
 			parents = ", ".join(frame.parents)
@@ -35,6 +41,8 @@ class ECGUtilities(object):
 			final += "    subcase of {} \n".format(parents) 
 		for use in uses:
 			final += "    evokes {} as {} \n".format(use.name, use.name.lower())
+		for cause in causes:
+			final += "    evokes {} as {} \n".format(cause.name, cause.name.lower())
 		final += "    roles \n"
 		for role in elements:
 			final += "       {} \n".format(role)
@@ -49,6 +57,9 @@ class ECGUtilities(object):
 				f2 = f2 + "_fn"
 			if c.name == "Using":
 				f1 = c.superFrame.lower() + "." + f1
+			if c.name == "Causative_of":
+				f2 = c.subFrame.lower() + "." + f2
+				#print(f1)
 			r = "       {} <--> {} \n".format(f1, f2)
 			final += r
 		return final
@@ -79,7 +90,7 @@ class ECGUtilities(object):
 					#	constituent = "{}-PP".format(v.fe)
 					#	final += "		{}: {}\n".format(constituent.lower(), constituent)
 					#else:
-					final += "		{}: {}\n".format(pt.lower(), pt)
+					final += "		optional {}: {}\n".format(pt.lower(), pt)
 		final += "	   meaning: {}\n".format(valence_pattern.frame)
 		final += "		constraints\n"
 		final += "		self.m <--> v.m\n"  # HACK
@@ -151,22 +162,67 @@ class ECGUtilities(object):
 			returned += pp + "\n\n"
 		return returned
 
+	def generate_general_preps_from_roles(roles):
+		returned = ""
+		for role in roles:
+			pp = ""
+			pp += "general construction {}-Preposition\n".format(role)
+			pp += "	 subcase of Preposition\n"
+			returned += pp + "\n\n"
+		return returned
 
 
 	# Could probably be generalized into other things than entities
 	# Based on an input frame, builds tokens sub of {Frame}Type
 	# Each token is an lu from frame and sub-frames
 	# role_name should be the role you want to modify in parent frame
-	def generate_entity_tokens(entity_frame, fn, role_name, pos):
+	def generate_tokens(entity_frame, fn, role_name, pos):
 		lus = ECGUtilities.gather_lexicalUnits(entity_frame, fn)
 		returned = ""
-		seen = []
+		#seen = []
 		for lu in lus:
 			lexeme = lu.name.split(".")[0]
-			if lu.pos == pos and lexeme not in seen:
-				returned += "{} :: {}Type :: self.m.{} <-- \"{}\"\n".format(lexeme, entity_frame.name, role_name, lexeme)
-				seen.append(lexeme)
+			if lu.pos == pos:# and lexeme not in seen:
+				returned += "{} :: {}Type :: self.m.{} <-- \"{}\"".format(lexeme, lu.frame_name, role_name, lexeme)
+				if lu.semtype:
+					# This will only work for entities, Events will likely need a different role name
+					pass
+					#returned += " :: self.m.Type_fn <-- @{}".format(lu.semtype.name)
+				returned += "\n"
+				#seen.append(lexeme)
 		return returned
+
+
+	def generate_types(parent_frame, fn, role_name, pos_type):
+		returned = ""
+		types = ECGUtilities.gather_types(parent_frame, fn)
+		returned += ECGUtilities.format_type_cxn(parent_frame, pos_type, role_name)
+		#for frame in parent_frame.children:
+		#	returned += ECGUtilities.format_type_cxn(fn.get_frame(frame), "{}Type".format(parent_frame.name), role_name)
+		for frame in types:
+			returned += ECGUtilities.format_type_cxn(frame, "{}Type".format(frame.parents[0]), role_name)
+		return returned
+
+
+	def gather_types(parent_frame, fn):
+		all_types = []
+		for frame in parent_frame.children:
+			actual = fn.get_frame(frame)
+			all_types.append(actual)
+			all_types += ECGUtilities.gather_types(actual, fn)
+		return all_types
+
+
+	def format_type_cxn(frame, parent_cxn, role_name):
+		returned = "construction {}Type\n".format(frame.name)
+		returned += "     subcase of {}\n".format(parent_cxn)
+		returned += "     meaning: {}\n".format(frame.name)
+		returned += "       constraints\n"
+		returned += "         self.m.{} <-- \"*\"\n".format(role_name)
+		returned += "\n"
+		return returned
+
+
 
 
 	def gather_lexicalUnits(parent, fn):

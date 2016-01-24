@@ -7,6 +7,22 @@ has a higher total -- if so, it adds that new pattern and deletes the old one.
 Questions --> should it combine the totals?
 """
 
+# Assumes frame lus have already been built
+# The "equality" check in lexical_units.py checks for: gf==gf, pt==pt, and fe==fe
+# One issue is that bound fe's don't match, like self_mover and theme.
+def find_common_patterns(frame1, frame2):
+    first = all_valences(frame1)
+    second = all_valences(frame2)
+    intersection = []
+    for element in first:
+        if element in second:
+            intersection.append(element)
+    for element in second:
+        if element in first and element not in intersection:
+            intersection.append(element)
+    #intersection = [element for element in first if element in second]
+    return intersection
+
 
 # Returns a sorted list of all valence patterns for a given frame.
 # The list is sorted by the valence pattern's "total".
@@ -19,10 +35,7 @@ def all_valences(frame, filter=False):
     if filter:
         total = filter_valences(total, frame)
         total = filter_by_pp_type(total)
-    #return total
     return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
-    #return sorted(filter_redundancies(filtered), key=lambda valence: valence.total, reverse=True)
-
 
 
 def flatten_valence_patterns(lu):
@@ -69,10 +82,7 @@ def filter_redundancies(patterns):
             seen.append(pattern)
         else:
             index = seen.index(pattern)
-            if pattern.total > seen[index].total:
-                pattern.total += seen[index].total  #Should it do this?
-                seen.remove(seen[index])
-                seen.append(pattern)
+            seen[index].total += pattern.total
     #return list(set(patterns))
     return seen
 
@@ -94,38 +104,47 @@ def filter_by_pp_type(patterns):
     return new_patterns
 
 
-#def collapse_all(base, rest, frame):
+def collapse_all(base, rest, frame):
+    new_pattern = ValencePattern(base.frame, base.total, base.lu) #Actually amalgamation of lus
+    new_pattern.valenceUnits = list(base.valenceUnits)
+    for pattern in rest:
+        new_pattern = collapse_patterns(new_pattern, pattern, frame)
+    return new_pattern
 
 
 # Takes in a "BASE" pattern and attempts to collapse it with another pattern
 def collapse_patterns(base, second, frame):
-    i = 0
     new_pattern = ValencePattern(base.frame, base.total, base.lu) #Actually amalgamation of lus
+    new_pattern.valenceUnits = list(base.valenceUnits)
     #for pattern in second:
     for unit in second.valenceUnits:
         element = frame.get_element(unit.fe)
+        add = True
         for base_unit in base.valenceUnits:
             base_element = frame.get_element(base_unit.fe)
-            if frame.compatible_elements(base_element, element) and unit.pt != base_unit.pt:
-                new_pattern.add_valenceUnit(unit)
-                i += 1
+            if not frame.compatible_elements(base_element, element):
+                add = False
+            if unit.pt == base_unit.pt:
+                #add = False
+                pass
+            if unit in new_pattern.valenceUnits:
+                add = False
+        if add:
+            new_pattern.add_valenceUnit(unit)
     return new_pattern
 
 
-# Takes in the result of lu_to_unique_patterns
-def find_pp_roles(mappings):
+# Takes in the result of all_valences
+def find_pp_roles(valences):
     roles = {}
-    for key, value in mappings.items():
-        for f in value:
-            for i in f.valenceUnits:
-                pt = i.pt.split("[")[0]
-                if pt == "PP":
-                    if i.fe not in roles:
-                        roles[i.fe] = []
-                    if i.pt not in roles[i.fe]:
-                        roles[i.fe].append(i.pt)
-                    #if (i.pt, key) not in roles[i.fe]:
-                    #    roles[i.fe].append((i.pt, key))
+    for value in valences:
+        for i in value.valenceUnits:
+            pt = i.pt.split("[")[0]
+            if pt == "PP":
+                if i.fe not in roles:
+                    roles[i.fe] = []
+                if i.pt not in roles[i.fe]:
+                    roles[i.fe].append(i.pt)
     return roles
 
 
@@ -136,3 +155,4 @@ def invert_roles(roles):
             if prep not in inverted:
                 inverted[prep] = []
             inverted[prep].append(k)
+    return inverted
