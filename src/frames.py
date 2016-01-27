@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 #from src.constructions import *
 from src.frame_relation import FrameRelation
 from src.lexical_units import *
+from xml.parsers import expat
 
 
 class Node(object):
