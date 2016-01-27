@@ -127,7 +127,6 @@ class FEGroupRealization(object):
 		self.lu = lexeme
 		
 
-
 	def add_valencePattern(self, valencePattern):
 		self.valencePatterns.append(valencePattern)
 		#self.valenceUnits[valence.fe] = valence

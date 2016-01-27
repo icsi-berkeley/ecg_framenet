@@ -115,7 +115,8 @@ class FrameBuilder(object):
         self.lu_path = "fndata-1.6/lu/"
 
     def build_frame(self, xml_path):
-        tree = ET.parse(xml_path)
+        print(xml_path)
+        tree = ET.parse(xml_path,  parser=expat.ParserCreate('UTF-8'))
         root = tree.getroot()
         name = root.attrib['name']
         ID = root.attrib['ID']

@@ -11,6 +11,7 @@ from src.frames import *
 from src.framenet import FrameNet, FrameTypeSystem
 import xml.etree.ElementTree as ET
 from src.annotation import Annotation
+from xml.parsers import expat
 
 replace_tag = "{http://framenet.icsi.berkeley.edu}"
 

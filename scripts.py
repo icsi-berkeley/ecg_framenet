@@ -71,7 +71,6 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 
 	types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
 
-
 	valences = all_valences(frame, filter_value)
 
 	collapsed_valences = [collapse_all(valences[0], valences[1:], s)]
