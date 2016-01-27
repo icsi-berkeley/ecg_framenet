@@ -28,15 +28,22 @@ def find_common_patterns(frame1, frame2):
 # The list is sorted by the valence pattern's "total".
 def all_valences(frame, filter=False):
     total = []
-    for lu in frame.lexicalUnits:
-        if lu.pos == "V":
-            total += flatten_valence_patterns(lu)
+    lus = [lu for lu in frame.lexicalUnits if lu.pos == "V"]
+    for lu in lus:
+        total += flatten_valence_patterns(lu)
             #total += lu.valenceUnits
     if filter:
         total = filter_valences(total, frame)
         total = filter_by_pp_type(total)
     return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
 
+
+# Returns individual valences for a given frame.
+def all_valences2(frame):
+    total = []
+    for lu in frame.lexicalUnits:
+        total += lu.individual_valences
+    return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
 
 def flatten_valence_patterns(lu):
     flattened = [pattern for realization in lu.valences for pattern in realization.valencePatterns]

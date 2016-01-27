@@ -10,9 +10,9 @@ You can then retrieve a frame object by referencing the "fn" (FrameNet) object:
 >> frame = fn.get_frame("Abandonment")
 
 By default, the frames contain shallow information about lexical units (name, POS, etc). To retrieve the valence patterns,
-you can use the "FrameNetBuilder" object:
+you can use the "FrameNetBuilder" object and pass in the name of the frame, as well as the FrameNet object (fn):
 
->> fnb.build_lus_for_frame("Abandonment")
+>> fnb.build_lus_for_frame("Abandonment", fn)
 
 Now, the lexicalUnits field for the Abandomnent field will contain valnece pattern information:
 

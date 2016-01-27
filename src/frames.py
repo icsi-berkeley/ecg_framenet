@@ -75,6 +75,7 @@ class FrameElement(object):
         self.frame_name = framename
         self.semtype=semtype
         self.excludes = []
+        self.requires = []
 
     def __str__(self):
         return self.name
@@ -90,6 +91,9 @@ class FrameElement(object):
 
     def add_excludes(self, excluded_element):
         self.excludes.append(excluded_element)
+
+    def add_requires(self, required_element):
+        self.requires.append(required_element)
 
 
 
@@ -158,6 +162,8 @@ class FrameBuilder(object):
                 element.set_semtype(s)
             if t == "excludesFE":
                 element.add_excludes(c2.attrib['name'])
+            if t == "requiresFE":
+                element.add_requires(c2.attrib['name'])
         return element
 
 

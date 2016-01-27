@@ -10,6 +10,7 @@ from os.path import isfile, join
 from src.frames import *
 from src.framenet import FrameNet, FrameTypeSystem
 import xml.etree.ElementTree as ET
+from src.annotation import Annotation
 
 replace_tag = "{http://framenet.icsi.berkeley.edu}"
 
@@ -38,6 +39,7 @@ class FramenetBuilder(object):
         self.relations_file_path = relations_file_path
         self.lu_path = lu_path
         self.frame_builder = FrameBuilder("{http://framenet.icsi.berkeley.edu}")
+        self.replace_tag = "{http://framenet.icsi.berkeley.edu}"
 
     def read(self):
         fn = FrameNet()
@@ -84,8 +86,32 @@ class FramenetBuilder(object):
                 if unit.status != "Problem":
                     ID = unit.ID 
                     path = self.lu_path + "lu{}.xml".format(ID)
-                    new_units.append(self.parse_lu_xml(path, unit))
+                    lu = self.parse_lu_xml(path, unit)
+                    lu = self.match_annotations_with_valences(lu)
+                    new_units.append(lu)
             frame.lexicalUnits = new_units
+
+
+    def match_annotations_with_valences(self, lu):
+
+        
+        for realization in lu.valences:
+            for pattern in realization.valencePatterns:
+                for annotation in lu.annotations:
+                    if annotation.ID in pattern.annotationID:
+                        #print()
+                        #print(annotation)
+                        pattern.add_annotation(annotation)
+                        #print(pattern.annotations)
+        for fe_realization in lu.fe_realizations:
+            for annotation in lu.annotations:
+                if annotation.ID in fe_realization.annotationID:
+                    fe_realization.add_annotation(annotation)
+                    for valence in fe_realization.valences:
+                        valence.add_annotation(annotation)
+
+        return lu
+
 
 
 
@@ -94,42 +120,93 @@ class FramenetBuilder(object):
         replace_tag = "{http://framenet.icsi.berkeley.edu}"
         tree = ET.parse(xml_path)
         root = tree.getroot()
+        annotations = []
         name, POS, frame, ID = root.attrib['name'], root.attrib['POS'], root.attrib['frame'], root.attrib['ID']
         for child in root.getchildren():
             tag = child.tag.replace(replace_tag, "")
+            if tag == "lexeme":
+                # TODO: Fix this
+                lexeme = child.attrib['name']
             if tag == "valences":
                 valence = child
-                break
-            elif tag == "definition":
+                actual_valences, individual_valences, fe_realizations = self.build_realizations(frame, name, valence.getchildren())
+            if tag == "definition":
                 definition = child.text
+            if tag == "subCorpus":
+                #print(child.attrib)
+                annotations += self.build_annotations(child)
         valences = valence.getchildren()
-        actual_valences = []
-        for v in valences:
-            valence_tag = v.tag.replace(replace_tag, "")
-            if valence_tag == "FEGroupRealization":
-                total = int(v.attrib['total'])
-                group_realization = FEGroupRealization(frame, total, name)
-                for realization in v.getchildren():
-                    tag = realization.tag.replace(replace_tag, "")
-                    if tag == "pattern":
-                        subtotal = int(realization.attrib['total'])
-                        valencePattern = ValencePattern(frame, subtotal, name)
-                        valenceUnits = realization.getchildren()
-                    
-                        for vUnit in valenceUnits:
-                            if vUnit.tag.replace(replace_tag, "") == "valenceUnit":
-                                new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'])
-                                valencePattern.add_valenceUnit(new_valence)
-                        group_realization.add_valencePattern(valencePattern)
-                        #print(frame)
-                        #print(ID)
-                        #print(vUnit.attrib)
-                actual_valences.append(group_realization)
-        lu = LexicalUnit(name, POS, frame, ID, definition)
+
+        lu = LexicalUnit(name, POS, frame, ID, definition, lexeme)
+        if annotations:
+            lu.add_annotations(annotations)
+        lu.individual_valences += individual_valences
+        lu.fe_realizations += fe_realizations
         lu.add_valences(actual_valences)
         lu.set_semtype(original.semtype)
         return lu
 
+    def build_annotations(self, subcorpus):
+        name = subcorpus.attrib['name']
+        annotations = []
+        for child in subcorpus.getchildren():
+            for c2 in child.getchildren():
+                tag = c2.tag.replace(self.replace_tag, "")
+                if tag == "text":
+                    sentence = c2.text
+                    #print(sentence)
+                    #print("\n")
+                if tag == "annotationSet":
+                    status = c2.attrib['status']
+                    ID = int(c2.attrib['ID'])
+                    if status == "MANUAL":
+                        new = Annotation(ID, status, sentence, name)
+                        annotations.append(new)
+            #print(child.tag)
+        return annotations 
+
+    def build_realizations(self, frame, name, valences):
+        actual_valences = []
+        individual_valences = []
+        fe_realizations = []
+        for v in valences:
+            valence_tag = v.tag.replace(self.replace_tag, "")
+            if valence_tag == "FERealization":
+                total = int(v.attrib['total'])
+                fe_realization = FERealization(frame, total, name)
+                for realization in v.getchildren():
+                    tag = realization.tag.replace(self.replace_tag, "")
+                    if tag == "FE":
+                        fe_realization.set_fe(realization.attrib['name'])
+                    if tag == "pattern":
+                        subtotal = int(realization.attrib['total'])
+                        for valence in realization.getchildren():
+                            if valence.tag.replace(self.replace_tag, "") == "valenceUnit":
+                                individual_valence = Valence(frame, valence.attrib['GF'], valence.attrib['PT'], valence.attrib['FE'], total=subtotal)
+                                fe_realization.add_valence(individual_valence)
+                                individual_valences.append(individual_valence)
+                            elif valence.tag.replace(self.replace_tag, "") == "annoSet":
+                                fe_realization.set_ID(int(valence.attrib['ID']))
+
+                fe_realizations.append(fe_realization)
+            elif valence_tag == "FEGroupRealization":
+                total = int(v.attrib['total'])
+                group_realization = FEGroupRealization(frame, total, name)
+                for realization in v.getchildren():
+                    tag = realization.tag.replace(self.replace_tag, "")
+                    if tag == "pattern":
+                        subtotal = int(realization.attrib['total'])
+                        valencePattern = ValencePattern(frame, subtotal, name)
+                        valenceUnits = realization.getchildren()
+                        for vUnit in valenceUnits:
+                            if vUnit.tag.replace(self.replace_tag, "") == "valenceUnit":
+                                new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'])
+                                valencePattern.add_valenceUnit(new_valence)
+                            elif valence.tag.replace(self.replace_tag, "") == "annoSet":
+                                valencePattern.set_ID(int(valence.attrib['ID']))
+                        group_realization.add_valencePattern(valencePattern)
+                actual_valences.append(group_realization)
+        return actual_valences, individual_valences, fe_realizations
 
 
 if __name__ == "__main__":

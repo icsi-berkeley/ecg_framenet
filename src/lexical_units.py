@@ -15,7 +15,7 @@ class ShallowLU(object):
 		return self.name
 
 class LexicalUnit(object):
-	def __init__(self, name, pos, frame_name, ID, definition):
+	def __init__(self, name, pos, frame_name, ID, definition, lexeme):
 		self.pos = pos
 		self.name = name
 		self.frame_name = frame_name
@@ -24,12 +24,19 @@ class LexicalUnit(object):
 		self.definition = definition
 		self.valences = [] # This could be a dictionary with frequency information
 		self.semtype = None
+		self.fe_realizations = []
+		self.individual_valences =[]
+		self.lexeme = lexeme
+		self.annotations = []
 
 	def add_valence(self, valence):
 		self.valences.append(valence)
 
 	def add_valences(self, valences):
 		self.valences += valences
+
+	def add_annotations(self, annotations):
+		self.annotations += annotations
 
 	def set_semtype(self, semtype):
 		self.semtype = semtype
@@ -38,14 +45,20 @@ class LexicalUnit(object):
 		return self.name
 
 class Valence(object):
-	def __init__(self, frame, gf, pt, fe):
+	def __init__(self, frame, gf, pt, fe, total="N/A"):
 		self.frame = frame
 		self.gf = gf
 		self.pt = pt
 		self.fe = fe
+		self.total = total
+		self.annotations = []
+
+	def add_annotation(self, annotation):
+		if annotation not in self.annotations:
+			self.annotations.append(annotation)
 
 	def __repr__(self):
-		return """Frame: {}, GF: {}, PT: {}, FE: {}\n""".format(self.frame, self.gf, self.pt, self.fe)
+		return """Frame: {}, GF: {}, PT: {}, FE: {}, total: {}\n""".format(self.frame, self.gf, self.pt, self.fe, self.total)
 
 	def __eq__(self, other):
 		return self.gf == other.gf and self.pt == other.pt and self.fe==other.fe #and (self.frame == other.frame)
@@ -56,6 +69,15 @@ class ValencePattern(object):
 		self.total = total 
 		self.valenceUnits = []
 		self.lu = lu
+		self.annotationID = []
+		self.annotations = []
+
+	def set_ID(self, ID):
+		self.annotationID.append(ID)
+
+	def add_annotation(self, annotation):
+		if annotation not in self.annotations:
+			self.annotations.append(annotation)
 
 	def add_valenceUnit(self, valence):
 		self.valenceUnits.append(valence)
@@ -69,6 +91,33 @@ class ValencePattern(object):
 	def __repr__(self):
 		return "Total: {}\nValences:{}\nLU: {}".format(self.total, str(self.valenceUnits), self.lu)
 
+class FERealization(object):
+	def __init__(self, frame, total, lexeme):
+		self.frame = frame
+		self.total = total
+		self.lexeme = lexeme
+		self.valences =[]
+		self.fe =None
+		self.annotationID = []
+		self.annotations = []
+
+	def add_annotation(self, annotation):
+		if annotation not in self.annotations:
+			self.annotations.append(annotation)
+
+	def set_ID(self, ID):
+		self.annotationID.append(ID)
+
+	def add_valence(self, valence):
+		self.valences.append(valence)
+
+	def set_fe(self, fe):
+		self.fe = fe
+
+	def __repr__(self):
+		return "Total: {}, lexeme: {}, fe: {}\n".format(self.total, self.lexeme, self.fe)
+
+
 class FEGroupRealization(object):
 	def __init__(self, frame, total, lexeme):
 		self.frame = frame
@@ -76,6 +125,8 @@ class FEGroupRealization(object):
 		self.valencePatterns = []
 		self.elements = []
 		self.lu = lexeme
+		
+
 
 	def add_valencePattern(self, valencePattern):
 		self.valencePatterns.append(valencePattern)
