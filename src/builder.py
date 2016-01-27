@@ -47,7 +47,8 @@ class FramenetBuilder(object):
         files = listdir(self.frames_path)
         for frame_file in files:
             if frame_file.split(".")[-1] == "xml":
-                path = self.frames_path + frame_file
+                new_name = frame_file.replace("._", "")
+                path = self.frames_path + new_name
                 frame = self.frame_builder.build_frame(path)
                 fn.add_frame(frame)
         self.read_relations(fn)

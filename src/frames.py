@@ -11,7 +11,6 @@ import xml.etree.ElementTree as ET
 #from src.constructions import *
 from src.frame_relation import FrameRelation
 from src.lexical_units import *
-from xml.parsers import expat
 
 
 class Node(object):
@@ -117,7 +116,7 @@ class FrameBuilder(object):
 
     def build_frame(self, xml_path):
         print(xml_path)
-        tree = ET.parse(xml_path,  parser=expat.ParserCreate('UTF-8'))
+        tree = ET.parse(xml_path)
         root = tree.getroot()
         name = root.attrib['name']
         ID = root.attrib['ID']
