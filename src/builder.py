@@ -16,6 +16,7 @@ from src.annotation import Annotation
 replace_tag = "{http://framenet.icsi.berkeley.edu}"
 
 class FrameElementRelation(object):
+    """ Defines a relation between two FEs. """
     def __init__(self, fe1, fe2, name=None, superFrame=None, subFrame =None):
         self.fe1 = fe1
         self.fe2 = fe2
@@ -35,6 +36,10 @@ class FrameElementRelation(object):
 
 
 class FramenetBuilder(object):
+    """ Takes in a path to the frames directory, relations file, and lu directory. Call read() to read in frames. 
+
+    To obtain LU valence information, call build_lus_for_frame, passing in the name of the frame, e.g. "Motion", and a FrameNet object, "fn".
+    """
     def __init__(self, frames_path, relations_file_path, lu_path):
         self.frames_path = frames_path
         self.relations_file_path = relations_file_path
@@ -43,6 +48,7 @@ class FramenetBuilder(object):
         self.replace_tag = "{http://framenet.icsi.berkeley.edu}"
 
     def read(self):
+        """ Builds FrameNet object. """
         fn = FrameNet()
         files = listdir(self.frames_path)
         for frame_file in files:
@@ -56,6 +62,7 @@ class FramenetBuilder(object):
 
 
     def read_relations(self, fn):
+        """ Reads in FE relations. Currently restricted to Inheritance, Using, and Causative_of."""
         tree = ET.parse(self.relations_file_path)
         root = tree.getroot()
         children = [i for i in root.getchildren() if i.attrib['name'] in ["Inheritance", "Using", "Causative_of"]]
@@ -79,6 +86,7 @@ class FramenetBuilder(object):
 
 
     def build_lus_for_frame(self, frame_name, fn):
+        """ Takes in a frame_name string, e.g. "Motion", and a FrameNet object "fn" and builds valence patterns. """
         frame = fn.get_frame(frame_name)
         if type(frame.lexicalUnits[0]) == LexicalUnit:
             print("These lexical units have already been built.")
@@ -95,8 +103,7 @@ class FramenetBuilder(object):
 
 
     def match_annotations_with_valences(self, lu):
-
-        
+        """ Matches annotation IDs with corresponding valence data. """
         for realization in lu.valences:
             for pattern in realization.valencePatterns:
                 for annotation in lu.annotations:
@@ -110,8 +117,8 @@ class FramenetBuilder(object):
                 if annotation.ID in fe_realization.annotationID:
                     fe_realization.add_annotation(annotation)
                     for valence in fe_realization.valences:
-                        valence.add_annotation(annotation)
-
+                        if annotation.ID in valence.annotationIDs:
+                            valence.add_annotation(annotation)
         return lu
 
 
@@ -119,6 +126,7 @@ class FramenetBuilder(object):
 
         
     def parse_lu_xml(self, xml_path, original): #, fn):
+        """ Takes as input the xml_path and a ShallowLU object, and builds a more complex LexicalUnit object with valence data. """
         replace_tag = "{http://framenet.icsi.berkeley.edu}"
         tree = ET.parse(xml_path)
         root = tree.getroot()
@@ -138,7 +146,6 @@ class FramenetBuilder(object):
                 #print(child.attrib)
                 annotations += self.build_annotations(child)
         valences = valence.getchildren()
-
         lu = LexicalUnit(name, POS, frame, ID, definition, lexeme)
         if annotations:
             lu.add_annotations(annotations)
@@ -149,6 +156,7 @@ class FramenetBuilder(object):
         return lu
 
     def build_annotations(self, subcorpus):
+        """ Builds annotations from a subcorpus. """
         name = subcorpus.attrib['name']
         annotations = []
         for child in subcorpus.getchildren():
@@ -161,13 +169,14 @@ class FramenetBuilder(object):
                 if tag == "annotationSet":
                     status = c2.attrib['status']
                     ID = int(c2.attrib['ID'])
-                    if status == "MANUAL":
+                    if status in ["MANUAL", "AUTO_EDITED"]:
                         new = Annotation(ID, status, sentence, name)
                         annotations.append(new)
             #print(child.tag)
         return annotations 
 
     def build_realizations(self, frame, name, valences):
+        """ Builds FERealizations and FEGroupRealizations. """
         actual_valences = []
         individual_valences = []
         fe_realizations = []
@@ -185,10 +194,13 @@ class FramenetBuilder(object):
                         for valence in realization.getchildren():
                             if valence.tag.replace(self.replace_tag, "") == "valenceUnit":
                                 individual_valence = Valence(frame, valence.attrib['GF'], valence.attrib['PT'], valence.attrib['FE'], total=subtotal)
+                                #if name == "move.v":
+                                #    print(individual_valence)
                                 fe_realization.add_valence(individual_valence)
                                 individual_valences.append(individual_valence)
                             elif valence.tag.replace(self.replace_tag, "") == "annoSet":
                                 fe_realization.set_ID(int(valence.attrib['ID']))
+                                individual_valence.add_annotationID(int(valence.attrib['ID']))
 
                 fe_realizations.append(fe_realization)
             elif valence_tag == "FEGroupRealization":

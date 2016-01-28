@@ -1,4 +1,13 @@
+""" 
+@author: <seantrott@icsi.berkeley.edu>
+
+Defines the FrameRelation class.
+"""
+
 class FrameRelation(object):
+    """ Contains relation type (Inchoative Of, etc.) and the associated frames (Cause_motion, etc.). 
+
+    If FrameNet.build_relation() has been called, related_frames will point to a list of actual Frame objects, vs. strings."""
     def __init__(self, relation_type, related_frames):
         self.relation_type = relation_type
         self.related_frames = related_frames

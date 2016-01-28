@@ -15,18 +15,21 @@ from src.valence_data import *
 from src.ecg_utilities import ECGUtilities as utils
 
 def retrieve_pt(frame, pt="DNI"):
-	""" Requires the lexical units in frame to have already been constructed by FrameNetBuilder,
-	so that valence patterns are accessible. 
+	""" Requires the lexical units in frame to have already been constructed by FrameNetBuilder, so that valence patterns are accessible. 
 	Returns all valence units with specified phrase type."""
-	if len(frame.lexicalUnits) > 0 and not type(frame.lexicalUnits[0]) == LexicalUnit:
-		return
-	else:
-		returned = []
-		patterns = all_valences2(frame)
-		for valence in patterns:
+	returned = []
+	"""
+	patterns = all_valences2(frame)
+	for valence in patterns:
+		if valence.pt == pt:
+			returned.append(valence)
+	"""
+	for lu in frame.lexicalUnits:
+		for valence in lu.individual_valences:
 			if valence.pt == pt:
 				returned.append(valence)
-		return returned
+
+	return returned
 
 
 def lus_for_frames(frame_set, fn):
@@ -62,18 +65,24 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	pos_to_type = dict(V="LexicalVerbType",
 					   N="NounType")
 
-	frame = fn.get_frame(frame_name)
+	
 	fnb.build_lus_for_frame(frame_name, fn)
+	frame = fn.get_frame(frame_name)
 
-	# TODO: not working
+	#print(frame.lexicalUnits)
 
+
+
+	tokens, types = [], []
 	tokens = utils.generate_tokens(frame, fn, role_name, pos)
 
-	types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
+	#print(frame.lexicalUnits)
+
+	#types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
 
 	valences = all_valences(frame, filter_value)
 
-	collapsed_valences = [collapse_all(valences[0], valences[1:], s)]
+	collapsed_valences = [collapse_all(valences[0], valences[1:], frame)]
 
 	cxns_all = utils.generate_cxns_from_patterns(valences)
 	cxns_collapsed = utils.generate_cxns_from_patterns(collapsed_valences)

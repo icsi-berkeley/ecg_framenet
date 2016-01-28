@@ -1,10 +1,10 @@
 from src.builder import *
 
 """
+
+@author: Sean Trott
 NOTES: Currently, filter_redundancies will check whether a given valence pattern 
-has already been added to a list. If it has, it checks whether the pattern in question 
-has a higher total -- if so, it adds that new pattern and deletes the old one.
-Questions --> should it combine the totals?
+has already been added to a list. If it has, it combines the totals.
 """
 
 # Assumes frame lus have already been built
@@ -35,6 +35,7 @@ def all_valences(frame, filter=False):
     if filter:
         total = filter_valences(total, frame)
         total = filter_by_pp_type(total)
+
     return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
 
 
@@ -42,8 +43,10 @@ def all_valences(frame, filter=False):
 def all_valences2(frame):
     total = []
     for lu in frame.lexicalUnits:
-        total += lu.individual_valences
-    return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
+        total += list(lu.individual_valences)
+    #return total
+    return filter_redundancies(total)
+    #return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
 
 def flatten_valence_patterns(lu):
     flattened = [pattern for realization in lu.valences for pattern in realization.valencePatterns]
@@ -63,12 +66,7 @@ def filter_valences(all_valence_patterns, frame):
             add = True
             fe = frame.get_element(valence.fe)
             if fe.coreType != "Core":
-                #print(valence.fe)
-                #print(valence.pt)
-                #pass
                 add = False
-                #print(valence.fe)
-            #    add = False
             if valence.pt in ['CNI', 'INI', 'DNI']:
                 add = False
             if valence.fe in observed:
@@ -76,7 +74,6 @@ def filter_valences(all_valence_patterns, frame):
             if add:
                 new_units.append(valence)
                 observed.append(valence.fe)
-        #if add:
 
         new_pattern.add_valenceUnits(new_units)
         new.append(new_pattern)
@@ -90,6 +87,7 @@ def filter_redundancies(patterns):
         else:
             index = seen.index(pattern)
             seen[index].total += pattern.total
+            seen[index].add_annotations(pattern.annotations)
     #return list(set(patterns))
     return seen
 

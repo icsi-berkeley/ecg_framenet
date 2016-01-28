@@ -1,10 +1,9 @@
-""" Testing: reading in FrameNet Frames and creating Python objects.
+""" 
+@author: <seantrott@icsi.berkeley.edu>
 
+This module defines the Frame object, as well as the associated SemType class, FrameElement class, and FrameBuilder.
 
-TO DO: get semtypes for:
-1) Frames
-2) frame elements
-3) lexical units
+Other associated Frame classes are defined in frame_relation and lexical_units.
 """
 
 import xml.etree.ElementTree as ET
@@ -14,12 +13,23 @@ from src.lexical_units import *
 
 
 class Node(object):
+    """ Simple Node object, has parents and children. """
     def __init__(self, parents=[], children=[]):
         self.parents= parents
         self.children = children
 
 
 class Frame(Node):
+    """ Represents a single FrameNet frame. Includes:
+    -Frame Name
+    -Frame elements 
+    -Frame lexical units 
+    -Frame relations 
+    -Frame parents 
+    -Frame children 
+    -Frame definition (text and XML)
+    -Frame ID
+    """
     def __init__(self, name, elements, lexicalUnits, relations, parents, children, definition, xml_def, ID):
         Node.__init__(self, parents=parents, children=children)
         self.name = name
@@ -38,6 +48,12 @@ class Frame(Node):
         for element in self.elements:
             if element.name == name:
                 return element
+
+    def get_lu(self, lu_name):
+        for lu in self.lexicalUnits:
+            if lu.name == lu_name:
+                return lu
+
 
     def add_fe_relation(self, relation):
         self.fe_relations.append(relation)
@@ -115,7 +131,6 @@ class FrameBuilder(object):
         self.lu_path = "fndata-1.6/lu/"
 
     def build_frame(self, xml_path):
-        print(xml_path)
         tree = ET.parse(xml_path)
         root = tree.getroot()
         name = root.attrib['name']

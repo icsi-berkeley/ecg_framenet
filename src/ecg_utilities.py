@@ -226,7 +226,8 @@ class ECGUtilities(object):
 
 
 	def gather_lexicalUnits(parent, fn):
-		lus = parent.lexicalUnits
+		lus = list(parent.lexicalUnits)
+
 		for frame in parent.children:
 			actual = fn.get_frame(frame)
 			lus += ECGUtilities.gather_lexicalUnits(actual, fn)

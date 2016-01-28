@@ -1,6 +1,8 @@
 # framenet
 Package for reading in FrameNet data and performing operations on it, such as creating ECG grammars.
 
+See more in the tutorial: 
+
 If you're using BASH and want to build a customized FrameNet object, run:
 
 $ ./build.sh
