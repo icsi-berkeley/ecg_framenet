@@ -18,18 +18,25 @@ def retrieve_pt(frame, pt="DNI"):
 	""" Requires the lexical units in frame to have already been constructed by FrameNetBuilder, so that valence patterns are accessible. 
 	Returns all valence units with specified phrase type."""
 	returned = []
-	"""
-	patterns = all_valences2(frame)
-	for valence in patterns:
-		if valence.pt == pt:
-			returned.append(valence)
-	"""
 	for lu in frame.lexicalUnits:
 		for valence in lu.individual_valences:
 			if valence.pt == pt:
 				returned.append(valence)
-
 	return returned
+
+
+def find_cooccurring_fes(frame, elements):
+	""" Returns a list of FE group realization objects featuring AT LEAST the fes specified in elements. 
+	ELEMENTS should be a list. """
+	return [realization for realization in frame.group_realizations if set(elements).issubset(realization.elements)]
+
+
+
+
+def retrieve_fe(frame, fe):
+	""" Requires the lexical units in frame to have already been constructed by FrameNetBuilder, so that valence patterns are accessible. 
+	Returns all valence units matching fe."""
+	return [valence for valence in frame.individual_valences if valence.fe == fe]
 
 
 def lus_for_frames(frame_set, fn):
@@ -65,134 +72,43 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	pos_to_type = dict(V="LexicalVerbType",
 					   N="NounType")
 
-	
 	fnb.build_lus_for_frame(frame_name, fn)
 	frame = fn.get_frame(frame_name)
-
-	#print(frame.lexicalUnits)
-
-
-
 	tokens, types = [], []
 	tokens = utils.generate_tokens(frame, fn, role_name, pos)
-
-	#print(frame.lexicalUnits)
-
-	#types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
+	types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
 
 	valences = all_valences(frame, filter_value)
-
 	collapsed_valences = [collapse_all(valences[0], valences[1:], frame)]
-
 	cxns_all = utils.generate_cxns_from_patterns(valences)
 	cxns_collapsed = utils.generate_cxns_from_patterns(collapsed_valences)
-
-
 	returned = dict(tokens=tokens,
 					types=types,
 					valences=valences,
 					collapsed_valences=collapsed_valences,
 					cxns_all=cxns_all,
 					cxns_collapsed=cxns_collapsed)
-
 	return returned
 
 
 
 
+def find_pattern_frequency(frame, target):
+	""" Takes in a frame (with lus already built), and a target "Valence" object. Returns the 
+	total frequency of that object in frame, which means:
+	Total number of annotations across all lus for frame. """
+	all_valences = all_individual_valences(frame)
+	#target = all_valences[0]
+	return sum(i.total for i in all_valences if i==target)
 
-"""
 
-
-
-
-from src.builder import *
-import sys
-from src.ecg_utilities import ECGUtilities as utils
-#from src.ecg_utilities import format_valence_verb_cxn, format_schema, generate_cxns_for_lu, generate_cxns_from_patterns
-#from src.ecg_utilities import generate_schemas_for_frames
-#from src.ecg_utilities import generate_preps_from_types, generate_pps_from_roles
-#from src.ecg_utilities import gather_lexicalUnits, generate_entity_tokens
-from src.valence_data import *
-
-if __name__ == "__main__":
-	data_path = sys.argv[1]
-	frame_path = data_path + "frame/"
-	relation_path = data_path + "frRelation.xml"
-	lu_path = data_path + "lu/"	
-	fnb = FramenetBuilder(frame_path, relation_path, lu_path)
-	fn = fnb.read() #fnb.read()
-	fn.build_relations()
-	fn.build_typesystem()
+def pattern_across_frames(frames, target):
+	""" Takes in multiple frames (a list) and finds frequency of target across them. """
+	returned = dict()
+	for frame in frames:
+		returned[frame.name] = find_pattern_frequency(frame, target)
+	return returned
 
 
 
-	schemas = utils.generate_schemas_for_frames(fn.frames)
-	schema_file = open("generated/schemas.grm", "w")
-	schema_file.write(schemas)
-	schema_file.close()
-	
-	s = fn.get_frame("Cure")
-	fnb.build_lus_for_frame("Cure", fn)
-
-	#lus = utils.gather_lexicalUnits(s, fn)
-
-
-
-
-	#d = all_valences(s)
-	#e = all_valences(t)
-
-	#common = find_common_patterns(s, t)
-
-	#tokens = utils.generate_tokens(s, fn, "Attribute", "N")
-	#f = open("generated/entities.tokens", "w")
-	#f.write(tokens)
-	#f.close()
-
-
-	#types = utils.generate_types(s, fn, "Attribute", "NounType")
-	#f = open("generated/entities.tokens", "w")
-	#f.write(tokens)
-	#f.close()
-
-	#mappings = lu_to_unique_patterns(s)
-	#mappings = all_valences(s, False)
-	#roles = find_pp_roles(mappings)
-
-	#filtered = filter_by_pp_type(filtered)
-
-	valences = all_valences(s, True)
-
-	#d = collapse_patterns(valences[0], valences[1], s)
-
-	valences = [collapse_all(valences[0], valences[1:], s)]
-	#ordered = sorted(valences, key=lambda valence: valence.total, reverse=True)
-
-	#inverted = invert_roles(roles)
-	
-	
-	general = utils.generate_general_preps_from_roles(roles.keys())
-	f1 = open("generated/preps.grm", "w")
-	f1.write(general)
-	f1.close()
-	
-	preps = utils.generate_preps_from_types(inverted)
-	f = open("generated/preps.grm", "w")
-	f.write(preps)
-	f.close()
-
-	pps = utils.generate_pps_from_roles(roles.keys())
-	new = open("generated/pp.grm", "w")
-	new.write(pps)
-	new.close()
-	
-	#total =0
-	#for k, v in roles.items():
-	#	total += len(v)
-	
-	t = utils.generate_cxns_from_patterns(valences)
-	f = open("generated/cxns.grm", "w")
-	f.write(t)
-"""
 	

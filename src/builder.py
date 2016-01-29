@@ -99,6 +99,8 @@ class FramenetBuilder(object):
                     lu = self.parse_lu_xml(path, unit)
                     lu = self.match_annotations_with_valences(lu)
                     new_units.append(lu)
+                    frame.add_valences(lu.individual_valences)
+                    frame.add_group_realizations(lu.valences)
             frame.lexicalUnits = new_units
 
 
@@ -193,7 +195,7 @@ class FramenetBuilder(object):
                         subtotal = int(realization.attrib['total'])
                         for valence in realization.getchildren():
                             if valence.tag.replace(self.replace_tag, "") == "valenceUnit":
-                                individual_valence = Valence(frame, valence.attrib['GF'], valence.attrib['PT'], valence.attrib['FE'], total=subtotal)
+                                individual_valence = Valence(frame, valence.attrib['GF'], valence.attrib['PT'], valence.attrib['FE'], name, total=subtotal)
                                 #if name == "move.v":
                                 #    print(individual_valence)
                                 fe_realization.add_valence(individual_valence)
@@ -214,8 +216,9 @@ class FramenetBuilder(object):
                         valenceUnits = realization.getchildren()
                         for vUnit in valenceUnits:
                             if vUnit.tag.replace(self.replace_tag, "") == "valenceUnit":
-                                new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'])
+                                new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'], name)
                                 valencePattern.add_valenceUnit(new_valence)
+                                group_realization.add_element(vUnit.attrib['FE'])
                             elif valence.tag.replace(self.replace_tag, "") == "annoSet":
                                 valencePattern.set_ID(int(valence.attrib['ID']))
                         group_realization.add_valencePattern(valencePattern)

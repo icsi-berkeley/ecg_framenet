@@ -40,7 +40,15 @@ class Frame(Node):
         self.xml_definition = xml_def
         self.definition = definition
         self.ID = ID
+        self.individual_valences = []
+        self.group_realizations = []
 
+    def add_valences(self, valences):
+        self.individual_valences += valences
+
+    def add_group_realizations(self, res):
+        self.group_realizations += res
+        
     def compatible_elements(self, e1, e2):
         return (e1.name not in e2.excludes) and (e2.name not in e1.excludes) and (e1.name != e2.name)
 

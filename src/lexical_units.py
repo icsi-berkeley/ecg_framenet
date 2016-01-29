@@ -70,7 +70,7 @@ class Valence(object):
 	Total is by default set to None, but a lexical unit's individual_valences and fe_realizations will have totals. 
 
 	Also contains a list of associated annotations. """
-	def __init__(self, frame, gf, pt, fe, total=None):
+	def __init__(self, frame, gf, pt, fe, lexeme, total=None):
 		self.frame = frame
 		self.gf = gf
 		self.pt = pt
@@ -78,6 +78,7 @@ class Valence(object):
 		self.total = total
 		self.annotations = []
 		self.annotationIDs = []
+		self.lexeme =lexeme
 
 	def add_annotationID(self, ID):
 		self.annotationIDs.append(ID)
@@ -96,6 +97,10 @@ class Valence(object):
 	def __eq__(self, other):
 		return self.gf == other.gf and self.pt == other.pt and self.fe==other.fe #and (self.frame == other.frame)
 
+
+	def __hash__(self):
+		return hash((self.gf, self.pt, self.fe))
+
 class ValencePattern(object):
 	""" Contains a list of valenceUnits (Valence objects), as well as associated annotations. This corresponds to a given valence pattern for an FEGroupRealization."""
 	def __init__(self, frame, total, lu):
@@ -113,6 +118,9 @@ class ValencePattern(object):
 		if annotation not in self.annotations:
 			self.annotations.append(annotation)
 
+	def add_annotations(self, annotations):
+		for annotation in annotations:
+			self.add_annotation(annotation)
 	def add_valenceUnit(self, valence):
 		self.valenceUnits.append(valence)
 
@@ -168,7 +176,8 @@ class FEGroupRealization(object):
 		#self.valenceUnits[valence.fe] = valence
 
 	def add_element(self, element):
-		self.elements.append(element)
+		if element not in self.elements:
+			self.elements.append(element)
 
 	def __repr__(self):
 		return "Total: {} \nValence Patterns: {}".format(self.total, str(self.valencePatterns))

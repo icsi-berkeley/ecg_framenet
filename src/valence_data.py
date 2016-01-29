@@ -40,12 +40,12 @@ def all_valences(frame, filter=False):
 
 
 # Returns individual valences for a given frame.
-def all_valences2(frame):
+def all_individual_valences(frame):
     total = []
     for lu in frame.lexicalUnits:
         total += list(lu.individual_valences)
-    #return total
-    return filter_redundancies(total)
+    return total
+    #return filter_redundancies(total)
     #return sorted(filter_redundancies(total), key=lambda valence: valence.total, reverse=True)
 
 def flatten_valence_patterns(lu):
@@ -103,7 +103,7 @@ def filter_by_pp_type(patterns):
             if pt == "PP":
                 fe = v.fe
                 pt = "{}-PP".format(fe)
-            new_valence = Valence(v.frame, v.gf, pt, v.fe)
+            new_valence = Valence(v.frame, v.gf, pt, v.fe, v.lexeme)
             new_pattern.add_valenceUnit(new_valence)
         new_patterns.append(new_pattern)
     return new_patterns
