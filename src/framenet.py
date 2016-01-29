@@ -79,7 +79,7 @@ class FrameNet(object):
 		self.ID_to_frames = {}
 		self.untagged_lus = []
 
-	def highest_common_supertype(self, f1, f2):
+	def common_supertype(self, f1, f2):
 		""" Returns the best common supertype between two frames. Could be useful for metaphor. """
 		try:
 			return self.typesystem.highest_common_supertype(f1, f2, self)

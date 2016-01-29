@@ -134,7 +134,7 @@ class FrameBuilder(object):
         tree = ET.parse(xml_path)
         root = tree.getroot()
         name = root.attrib['name']
-        ID = root.attrib['ID']
+        ID = int(root.attrib['ID'])
         elements = []
         lexemes = []
         relations = []

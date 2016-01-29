@@ -5,7 +5,7 @@ This file is intended to be a repository of sample scripts/queries to run over F
 
 The scripts will be coded as functions, so you can import them into "main" once you run ./build.sh,
 as in:
-from scripts import ....
+from scripts import retrieve_pt
 
 """
 

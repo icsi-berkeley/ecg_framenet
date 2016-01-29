@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	fn.build_relations()
 	fn.build_typesystem()
 
-	fnb.build_lus_for_frame("Motion", fn)
+
 
 
 
