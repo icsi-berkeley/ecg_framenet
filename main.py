@@ -23,14 +23,7 @@ if __name__ == "__main__":
 	fn.build_relations()
 	fn.build_typesystem()
 
-	fnb.build_lus_for_frame("Cause_motion", fn)
-	fnb.build_lus_for_frame("Motion", fn)
-	s= fn.get_frame("Motion")
-	t = fn.get_frame("Cause_motion")
 
-	#target = all_individual_valences(s)[0]
-
-	shove = find_cooccurring_fes(t, ["Theme", "Goal", "Agent"])
 
 
 
