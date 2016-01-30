@@ -161,6 +161,9 @@ class FERealization(object):
 		return "Total: {}, lexeme: {}, fe: {}\n".format(self.total, self.lexeme, self.fe)
 
 
+
+
+
 class FEGroupRealization(object):
 	""" Contains valence patterns for an FE group realization (e.g., "Theme" and "Path" in the Motion frame). """
 	def __init__(self, frame, total, lexeme):
@@ -181,6 +184,12 @@ class FEGroupRealization(object):
 
 	def __repr__(self):
 		return "Total: {} \nValence Patterns: {}".format(self.total, str(self.valencePatterns))
+
+	def __eq__(self, other):
+		return (self.elements==other.elements) #and (self.valencePatterns == other.valencePatterns)
+
+
+
 
 
 

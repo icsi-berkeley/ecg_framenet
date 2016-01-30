@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
 	#target = all_individual_valences(s)[0]
 
-	themes = find_cooccurring_fes(s, ["Theme", "Goal"])
+	shove = find_cooccurring_fes(t, ["Theme", "Goal", "Agent"])
 
 
 
