@@ -132,7 +132,7 @@ class ValencePattern(object):
 		return (self.valenceUnits == other.valenceUnits)# and self.total == other.total
 
 	def __repr__(self):
-		return "Total: {}\nValences:{}\nLU: {}".format(self.total, str(self.valenceUnits), self.lu)
+		return "Total: {}\nValences:{}\nLU: {}".format(self.total, str(self.valenceUnits), self.lexeme)
 
 class FERealization(object):
 	""" Contains a list of valences and associated annotations. These are valences for a Frame Element realization. """
