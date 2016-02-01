@@ -15,4 +15,4 @@ class Annotation(object):
 
 
 	def __repr__(self):
-		return self.sentence
+		return self.sentence + "\n"
