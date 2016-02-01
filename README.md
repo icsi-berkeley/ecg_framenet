@@ -1,7 +1,7 @@
 # framenet
 Package for reading in FrameNet data and performing operations on it, such as creating ECG grammars.
 
-See more in the tutorial: 
+See more in the tutorial: https://github.com/icsi-berkeley/framenet/wiki/FrameNet-Querying-Tutorial
 
 If you're using BASH and want to build a customized FrameNet object, run:
 
