@@ -110,9 +110,8 @@ class FramenetBuilder(object):
             for pattern in realization.valencePatterns:
                 for annotation in lu.annotations:
                     if annotation.ID in pattern.annotationID:
-                        #print()
-                        #print(annotation)
                         pattern.add_annotation(annotation)
+                        realization.add_annotation(annotation)
                         #print(pattern.annotations)
         for fe_realization in lu.fe_realizations:
             for annotation in lu.annotations:
@@ -219,8 +218,9 @@ class FramenetBuilder(object):
                                 new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'], name)
                                 valencePattern.add_valenceUnit(new_valence)
                                 group_realization.add_element(vUnit.attrib['FE'])
-                            elif valence.tag.replace(self.replace_tag, "") == "annoSet":
-                                valencePattern.set_ID(int(valence.attrib['ID']))
+                            elif vUnit.tag.replace(self.replace_tag, "") == "annoSet":
+                                #print(int(vUnit.attrib['ID']))
+                                valencePattern.set_ID(int(vUnit.attrib['ID']))
                         group_realization.add_valencePattern(valencePattern)
                 actual_valences.append(group_realization)
         return actual_valences, individual_valences, fe_realizations

@@ -121,6 +121,7 @@ class ValencePattern(object):
 	def add_annotations(self, annotations):
 		for annotation in annotations:
 			self.add_annotation(annotation)
+
 	def add_valenceUnit(self, valence):
 		self.valenceUnits.append(valence)
 
@@ -172,6 +173,12 @@ class FEGroupRealization(object):
 		self.valencePatterns = []
 		self.elements = []
 		self.lu = lexeme
+		self.annotations = []
+
+
+	def add_annotation(self, annotation):
+		if annotation not in self.annotations:
+			self.annotations.append(annotation)
 		
 
 	def add_valencePattern(self, valencePattern):
