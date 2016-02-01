@@ -103,11 +103,11 @@ class Valence(object):
 
 class ValencePattern(object):
 	""" Contains a list of valenceUnits (Valence objects), as well as associated annotations. This corresponds to a given valence pattern for an FEGroupRealization."""
-	def __init__(self, frame, total, lu):
+	def __init__(self, frame, total, lexeme):
 		self.frame = frame 
 		self.total = total 
 		self.valenceUnits = []
-		self.lu = lu
+		self.lexeme = lexeme
 		self.annotationID = []
 		self.annotations = []
 
@@ -172,7 +172,7 @@ class FEGroupRealization(object):
 		self.total = total
 		self.valencePatterns = []
 		self.elements = []
-		self.lu = lexeme
+		self.lexeme = lexeme
 		self.annotations = []
 
 
