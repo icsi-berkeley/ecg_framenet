@@ -101,6 +101,7 @@ class FramenetBuilder(object):
                     new_units.append(lu)
                     frame.add_valences(lu.individual_valences)
                     frame.add_group_realizations(lu.valences)
+                    frame.add_fe_realizations(lu.fe_realizations)
             frame.lexicalUnits = new_units
 
 

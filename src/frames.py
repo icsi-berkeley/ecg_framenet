@@ -42,12 +42,16 @@ class Frame(Node):
         self.ID = ID
         self.individual_valences = []
         self.group_realizations = []
+        self.fe_realizations = []
 
     def add_valences(self, valences):
         self.individual_valences += valences
 
     def add_group_realizations(self, res):
         self.group_realizations += res
+
+    def add_fe_realizations(self, res):
+        self.fe_realizations += res
         
     def compatible_elements(self, e1, e2):
         return (e1.name not in e2.excludes) and (e2.name not in e1.excludes) and (e1.name != e2.name)
