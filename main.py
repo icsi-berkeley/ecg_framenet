@@ -42,6 +42,11 @@ if __name__ == "__main__":
 	#* cxns_collapsed: valences collapsed into smaller set 
 	#* tokens: tokens created from these frames ("swarm.v", etc.)
 	#* types: type-cxns ("Fluidic_motionType") created from these frames 
+	#* pp: PP constructions that are specific to the frame (e.g., Instrument-PP)
+	#* prep_types: General prepositional type constructions used for frame (E.g., "Instrument-Prep")
+	#* prepositions: Preposition constructions that are used for that frame (E.g. "With-Preposition"[subcase of Instrument-Prep])
+	# NOTE: The last three (pp, prep_types, and prepositions) are necessary for the collapsed cxns, since this filters by PP-type,
+	# and collapses two valence units if they are PPs mapping onto the same FE.
 	
 
 

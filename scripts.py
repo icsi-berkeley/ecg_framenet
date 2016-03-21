@@ -57,6 +57,17 @@ def get_valence_patterns(frame):
 	return patterns
 
 
+
+def invert_preps(valences):
+	returned = dict()
+	for pattern in valences:
+		if pattern.pt.split("[")[0].lower() == "pp":
+			if pattern.pt not in returned:
+				returned[pattern.pt] = []
+			if pattern.fe not in returned[pattern.pt]:
+				returned[pattern.pt].append(pattern.fe)
+	return returned
+
 def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False):
 	"""
 	Takes in:
@@ -95,12 +106,22 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	cxns_all = utils.generate_cxns_from_patterns(valence_patterns)
 	cxns_collapsed = utils.generate_cxns_from_patterns(collapsed_valences)
 
+	roles = [v.fe for v in frame.individual_valences if v.pt.split("[")[0].lower() == "pp"]
+	types = invert_preps(frame.individual_valences)
+	print(types)
+	pp = utils.generate_pps_from_roles(roles)
+	prep_types = utils.generate_general_preps_from_roles(roles)
+	prepositions = utils.generate_preps_from_types(types)
+
 	returned = dict(tokens=tokens,
 					types=types,
 					valence_patterns=valence_patterns,
 					collapsed_valences=collapsed_valences,
 					cxns_all=cxns_all,
-					cxns_collapsed=cxns_collapsed)
+					cxns_collapsed=cxns_collapsed,
+					pp = pp,
+					prep_types=prep_types,
+					prepositions = prepositions)
 	return returned
 
 

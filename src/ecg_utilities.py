@@ -149,15 +149,17 @@ class ECGUtilities(object):
 			returned += prep + "\n\n"
 		return returned
 
+
+
 	# Takes as input a list of ROLES, which it creates PP constructions based on.
 	def generate_pps_from_roles(roles):
 		returned = ""
 		for role in roles:
 			pp = ""
 			pp += "construction {}-PP\n".format(role)
-			pp += "	 subcase of PP\n"
-			pp += "	 constructional\n"
-			pp += "	   constituents\n"
+			pp += "  subcase of PP\n"
+			pp += "  constructional\n"
+			pp += "    constituents\n"
 			pp += "      prep: {}-Preposition".format(role)
 			returned += pp + "\n\n"
 		return returned
