@@ -88,7 +88,9 @@ class FramenetBuilder(object):
     def build_lus_for_frame(self, frame_name, fn):
         """ Takes in a frame_name string, e.g. "Motion", and a FrameNet object "fn" and builds valence patterns. """
         frame = fn.get_frame(frame_name)
-        if type(frame.lexicalUnits[0]) == LexicalUnit:
+        if len(frame.lexicalUnits) <= 0:
+            print("No lexical units for frame.")
+        elif type(frame.lexicalUnits[0]) == LexicalUnit:
             print("These lexical units have already been built.")
         else:
             new_units = []
@@ -194,7 +196,9 @@ class FramenetBuilder(object):
                     if tag == "pattern":
                         subtotal = int(realization.attrib['total'])
                         for valence in realization.getchildren():
+
                             if valence.tag.replace(self.replace_tag, "") == "valenceUnit":
+
                                 individual_valence = Valence(frame, valence.attrib['GF'], valence.attrib['PT'], valence.attrib['FE'], name, total=subtotal)
                                 #if name == "move.v":
                                 #    print(individual_valence)
@@ -217,6 +221,8 @@ class FramenetBuilder(object):
                         for vUnit in valenceUnits:
                             if vUnit.tag.replace(self.replace_tag, "") == "valenceUnit":
                                 new_valence = Valence(frame, vUnit.attrib['GF'], vUnit.attrib['PT'], vUnit.attrib['FE'], name)
+                                if new_valence in individual_valences:
+                                    new_valence.total = individual_valences[individual_valences.index(new_valence)].total
                                 valencePattern.add_valenceUnit(new_valence)
                                 group_realization.add_element(vUnit.attrib['FE'])
                             elif vUnit.tag.replace(self.replace_tag, "") == "annoSet":

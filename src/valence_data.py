@@ -1,11 +1,54 @@
 from src.builder import *
 
+
+
 """
 
 @author: Sean Trott
 NOTES: Currently, filter_redundancies will check whether a given valence pattern 
 has already been added to a list. If it has, it combines the totals.
 """
+
+def collapse_valences_for_frame(frame, filter=True):
+    initial_pattern = ValencePattern(frame.name, 0, None)
+    s = [valence for valence in frame.individual_valences if valence.lexeme.split(".")[1] == "v"]
+    if filter:
+        s = filter_by_pp(s)
+    by_total = sorted(s, key=lambda valence: valence.total, reverse=True)
+    #for valence in frame.individual_valences:
+    initial_pattern.add_valenceUnit(by_total[0])
+    for i in by_total:
+        if (i not in initial_pattern.valenceUnits) and (frame.get_element(i.fe).coreType == "Core"):
+            add = True
+            for j in initial_pattern.valenceUnits:
+                base_element, element = frame.get_element(i.fe), frame.get_element(j.fe)
+                if not frame.compatible_elements(base_element, element):
+                    add = False
+                if (i.pt == j.pt) and (i.fe == j.fe):
+                    add = False
+            if add:
+                initial_pattern.add_valenceUnit(i)
+    initial_pattern.total = sum(i.total for i in initial_pattern.valenceUnits)
+    return initial_pattern
+
+
+def filter_by_pp(valences):
+    """ Should return a reduced list with valence PT changed to more general PT, e.g. "Area-PP". """
+    second = []
+    for i in valences:
+        new = i.clone()
+        if i.pt.split("[")[0] == "PP":
+            new.pt = "{}-PP".format(i.fe)
+        if new not in second:
+            second.append(new)
+        else:
+            second[second.index(new)].total += new.total
+            second[second.index(new)].add_annotations(new.annotations)
+    return second
+
+def hypothesize_constructions(frame):
+    return frame
+
 
 # Assumes frame lus have already been built
 # The "equality" check in lexical_units.py checks for: gf==gf, pt==pt, and fe==fe

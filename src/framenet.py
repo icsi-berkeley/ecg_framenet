@@ -77,7 +77,7 @@ class FrameNet(object):
 		self.definitions_to_frames = {}
 		self.xml_definitions_to_frames = {}
 		self.ID_to_frames = {}
-		self.untagged_lus = []
+		self.untagged_lus = {}
 
 	def common_supertype(self, f1, f2):
 		""" Returns the best common supertype between two frames. Could be useful for metaphor. """
@@ -118,8 +118,6 @@ class FrameNet(object):
 		""" Returns from from lu String, e.g. "move.v". """
 		if lu in self.lexemes_to_frames:
 			return self.lexemes_to_frames[lu]
-		else:
-			raise Exception("LU {} not found.".format(lu))
 
 	def get_root(self, frame):
 		""" Returns root frame, e.g. "Event". """
@@ -147,15 +145,21 @@ class FrameNet(object):
 			#lex = lu.name.split(".")[0]
 			#TODO: How to represent?
 			untag = lu.name.split(".")[0]
-			self.untagged_lus.append(untag)
+			if untag not in self.untagged_lus:
+				self.untagged_lus[untag] = []
 			lex = lu.name
 			if lex not in self.lexemes_to_frames:
 				self.lexemes_to_frames[lex] = []
 			self.lexemes_to_frames[lex].append(frame)
+			self.untagged_lus[untag].append(frame)
 			self.definitions_to_frames[frame.definition] = frame
 			self.xml_definitions_to_frames[frame.xml_definition] = frame
 			self.ID_to_frames[int(frame.ID)] = frame
 		# hierarchy?
+
+	def frame_from_raw_lemma(self, lemma):
+		if lemma in self.untagged_lus:
+			return self.untagged_lus[lemma]
 
 	def add_element(self, f1, f2):
 		""" Adds element from Frame1 to Frame2. """

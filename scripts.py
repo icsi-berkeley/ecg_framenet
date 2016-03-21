@@ -12,6 +12,7 @@ from scripts import retrieve_pt
 
 from src.lexical_units import *
 from src.valence_data import *
+from src.hypothesize_constructions import *
 from src.ecg_utilities import ECGUtilities as utils
 
 def retrieve_pt(frame, pt="DNI"):
@@ -49,6 +50,12 @@ def lus_for_frames(frame_set, fn):
 	return [fn.get_frame(frame).lexicalUnits for frame in frame_set]
 
 
+def get_valence_patterns(frame):
+	patterns = []
+	for re in frame.group_realizations:
+		patterns += re.valencePatterns
+	return patterns
+
 
 def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False):
 	"""
@@ -59,6 +66,8 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	-"filter_value" boolean: determines if you want to filter valence patterns
 	-role_name: role to modify in types/tokens
 	-pos: lexical unit POS to create tokens for (e.g., "V")
+
+	TO DO: add PP constructions?
 
 	Returns:
 	-tokens
@@ -78,17 +87,24 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	tokens = utils.generate_tokens(frame, fn, role_name, pos)
 	types = utils.generate_types(frame, fn, role_name, pos_to_type[pos])	
 
-	valences = all_valences(frame, filter_value)
-	collapsed_valences = [collapse_all(valences[0], valences[1:], frame)]
-	cxns_all = utils.generate_cxns_from_patterns(valences)
+
+
+	valence_patterns = get_valence_patterns(frame)
+	collapsed_valences = collapse_valences_to_cxns(frame)
+
+	cxns_all = utils.generate_cxns_from_patterns(valence_patterns)
 	cxns_collapsed = utils.generate_cxns_from_patterns(collapsed_valences)
+
 	returned = dict(tokens=tokens,
 					types=types,
-					valences=valences,
+					valence_patterns=valence_patterns,
 					collapsed_valences=collapsed_valences,
 					cxns_all=cxns_all,
 					cxns_collapsed=cxns_collapsed)
 	return returned
+
+
+
 
 
 

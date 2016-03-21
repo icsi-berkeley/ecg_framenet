@@ -91,6 +91,11 @@ class Valence(object):
 		for annotation in annotations:
 			self.add_annotation(annotation)
 
+	def clone(self):
+		new = Valence(self.frame, self.gf, self.pt, self.fe, self.lexeme, self.total)
+		new.add_annotations(self.annotations)
+		return new
+
 	def __repr__(self):
 		return """Frame: {}, GF: {}, PT: {}, FE: {}, total: {}\n""".format(self.frame, self.gf, self.pt, self.fe, self.total)
 
@@ -129,7 +134,9 @@ class ValencePattern(object):
 		self.valenceUnits += units
 
 	def __eq__(self, other):
-		return (self.valenceUnits == other.valenceUnits)# and self.total == other.total
+		sorted_one = sorted(self.valenceUnits, key=lambda valence: valence.total, reverse=True)
+		sorted_two = sorted(other.valenceUnits, key=lambda valence: valence.total, reverse=True)
+		return (sorted_one == sorted_two)# and self.total == other.total
 
 	def __repr__(self):
 		return "Total: {}\nValences:{}\nLU: {}".format(self.total, str(self.valenceUnits), self.lexeme)

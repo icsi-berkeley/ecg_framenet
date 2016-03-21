@@ -1,3 +1,5 @@
+from src.hypothesize_constructions import *
+
 class ECGUtilities(object):
 
 	def format_schema(frame):
@@ -75,22 +77,19 @@ class ECGUtilities(object):
 		final = ""
 		name = valence_pattern.frame + "_pattern{}".format(n)
 		final += "construction {} \n".format(name)
-		final += "     subcase of VP\n"
+		final += "     subcase of ArgumentStructure\n"
 		final += "	   constructional\n"
 		final += "		constituents\n"
 		final += "		v: Verb\n" # HACK
 		for v in valence_pattern.valenceUnits:
 			if v.gf != "Ext":
 				pt = v.pt.replace("[", "-").replace("]", "")
+				total = v.total
+				ommission_prob = (total / valence_pattern.total)
 				if pt in ['INI', 'DNI', 'CNI']:
-					final += "		optional {}: {}\n".format(pt.lower(), pt)
+					final += "		{}: {} [{}, .9]\n".format(pt.lower(), pt, ommission_prob)
 				else:
-					#if pt.split("-")[0] == "PP":
-						#print(v.fe)
-					#	constituent = "{}-PP".format(v.fe)
-					#	final += "		{}: {}\n".format(constituent.lower(), constituent)
-					#else:
-					final += "		optional {}: {}\n".format(pt.lower(), pt)
+					final += "		{}: {} [{}, .9]\n".format(pt.lower(), pt, ommission_prob)
 		final += "	   meaning: {}\n".format(valence_pattern.frame)
 		final += "		constraints\n"
 		final += "		self.m <--> v.m\n"  # HACK
@@ -108,6 +107,7 @@ class ECGUtilities(object):
 		return final
 
 
+
 	# Requires a "built" lu - e.g., one with valence patterns, etc.
 	def generate_cxns_for_lu(lu):
 		returned = ""
@@ -119,14 +119,14 @@ class ECGUtilities(object):
 		return returned
 
 
-	def generate_cxns_from_patterns(patterns):
+	def generate_cxns_from_patterns(patterns, collapsed=True):
 		returned = ""
 		i = 1
 		for pattern in patterns:
-			#print(type(pattern))
-			#print(type(pattern.valenceUnits))
-			#for valence in pattern:
-			returned += ECGUtilities.format_valence_verb_cxn(pattern, i) + "\n\n"
+			if collapsed:
+				returned += hypothesize_construction_from_collapsed_pattern(pattern, i).format_to_cxn() + "\n\n"
+			else:
+				returned += hypothesize_construction_from_pattern(pattern, i).format_to_cxn() + "\n\n"
 			i += 1
 		return returned
 
