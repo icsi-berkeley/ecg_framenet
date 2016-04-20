@@ -110,7 +110,7 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	types = invert_preps(frame.individual_valences)
 	pp = utils.generate_pps_from_roles(roles)
 	prep_types = utils.generate_general_preps_from_roles(roles)
-	prepositions = utils.generate_preps_from_types(types)
+	prepositions = utils.generate_preps_from_types(types, fn)
 
 	returned = dict(tokens=tokens,
 					types=types,

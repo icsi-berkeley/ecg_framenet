@@ -150,7 +150,7 @@ class FramenetBuilder(object):
                 #print(child.attrib)
                 annotations += self.build_annotations(child)
         valences = valence.getchildren()
-        lu = LexicalUnit(name, POS, frame, ID, definition, lexeme)
+        lu = LexicalUnit(name, POS, frame, ID, definition, lexeme, original.status)
         if annotations:
             lu.add_annotations(annotations)
         lu.individual_valences += individual_valences

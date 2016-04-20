@@ -30,7 +30,7 @@ class LexicalUnit(object):
 	.individual_valences: list of Valence objects
 	.annotations: list of annotated sentences for this LU.
 	"""
-	def __init__(self, name, pos, frame_name, ID, definition, lexeme):
+	def __init__(self, name, pos, frame_name, ID, definition, lexeme, status=None):
 		self.pos = pos
 		self.name = name
 		self.frame_name = frame_name
@@ -43,6 +43,7 @@ class LexicalUnit(object):
 		self.individual_valences =[]
 		self.lexeme = lexeme
 		self.annotations = []
+		self.status = status
 
 	def add_valence(self, valence):
 		self.valences.append(valence)

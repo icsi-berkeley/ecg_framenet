@@ -16,14 +16,33 @@ class FrameTypeSystem(object):
 	""" Simple type system hierarchy object, with associated methods. Used to navigate inheritance relations in FrameNet. """
 	def __init__(self, fn):
 		self.roots = []
-		self.build(fn)
+		self.memoized_roots = dict()
+		#self.build(fn)
 
 	def build(self, fn):
 		for frame in fn.frames:
-			root_frame = self.get_root(frame, fn)
+			print(frame.name)
+			root_frames = self.get_root(frame, fn)
+			for root_frame in root_frames:
 			#self.roots.append(self.get_root(frame, fn))
-			if not root_frame in self.roots:
-				self.roots.append(root_frame)
+				if not root_frame in self.roots:
+					self.roots.append(root_frame)
+
+	def get_roots(self, frame, fn, roots=[]):
+		if frame.name in self.memoized_roots:
+			return self.memoized_roots[frame.name]
+		if len(frame.parents) > 0:
+			for parent in frame.parents:
+				new = fn.get_frame(parent)
+				roots += self.get_root(new, fn, roots)
+				#self.memoized_roots[new.name] = list(set(roots))
+			self.memoized_roots[frame.name] = list(set(roots))
+			return list(set(roots))
+		else:
+			if frame not in roots:
+				self.memoized_roots[frame.name] = frame
+				roots.append(frame)
+			return roots
 
 	def get_root(self, frame, fn):
 		if len(frame.parents) > 0:
@@ -32,7 +51,9 @@ class FrameTypeSystem(object):
 		else:
 			return frame
 
+
 	def get_siblings(self, frame, fn):
+		""" Returns siblings of a frame, e.g. the other frames that inherit from the same parent(s). """
 		parents = frame.parents
 		siblings = []
 		for i in parents:
@@ -40,7 +61,8 @@ class FrameTypeSystem(object):
 			siblings += parent.children
 		return siblings
 
-	def highest_common_supertype(self, f1, f2, fn):
+	def lowest_common_supertype(self, f1, f2, fn):
+		""" Returns the common supertype of F1 and F2. Could be used for metaphor, etc. """
 		if f1 == f2:
 			return f1
 		elif fn.subtype(f1, f2):
@@ -56,12 +78,12 @@ class FrameTypeSystem(object):
 				frame = fn.get_frame(i)
 				if i in f2_parents:
 					return i
-				return self.highest_common_supertype(frame, f2, fn)
+				return self.lowest_common_supertype(frame, f2, fn)
 			for i in f2_parents:
 				frame = fn.get_frame(i)
 				if i in f1_parents:
 					return i
-				return self.highest_common_supertype(frame, f1, fn)
+				return self.lowest_common_supertype(frame, f1, fn)
 
 
 
@@ -80,9 +102,9 @@ class FrameNet(object):
 		self.untagged_lus = {}
 
 	def common_supertype(self, f1, f2):
-		""" Returns the best common supertype between two frames. Could be useful for metaphor. """
+		""" Returns the lowest common supertype between two frames. Could be useful for metaphor. """
 		try:
-			return self.typesystem.highest_common_supertype(f1, f2, self)
+			return self.typesystem.lowest_common_supertype(f1, f2, self)
 		except TypeSystemException as e:
 			print(e.message)
 			return None

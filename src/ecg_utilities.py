@@ -134,19 +134,58 @@ class ECGUtilities(object):
 	# Takes in a mapping of prepositions onto the types of FEs they occur with.
 	# {'PP[in]': ['Area', 'Goal', etc.]}
 	# Could potentially be generalized to other POS.
-	def generate_preps_from_types(types):
+	def generate_preps_from_types(types, fn):
 		returned = ""
+		preps = sorted([lu for lu in fn.lexemes_to_frames.keys() if lu.split(".")[1] == "prep"])
 		for k,v in types.items():
-			name = k.split("[")[1].replace("]", "")
-			prep = "construction {}-Preposition\n".format(name)
-			#prep += "construction {}-Preposition".format()
+			meaning = None
 			supers = ["{}-Preposition".format(supertype) for supertype in v]
+			name = k.split("[")[1].replace("]", "")
+			lu = "{}.prep".format(name)
 			parents = ", ".join(supers)
-			prep += "    subcase of {}\n".format(parents)
-			prep += "    form\n"
-			prep += "      constraints\n"
-			prep += "        self.f.orth <-- \"{}\"\n".format(name)
-			returned += prep + "\n\n"
+			if lu in preps:
+				frames = fn.get_frames_from_lu(lu)
+				for frame in frames:
+					meaning = frame.name
+					prep = ECGUtilities.format_prep(name, parents, meaning)
+					returned += prep + "\n\n"
+			else:
+				prep = ECGUtilities.format_prep(name, parents, meaning)
+				returned += prep + "\n\n"
+		return returned
+
+	def format_prep(name, parents, meaning=None):
+		prep = "construction {}-Preposition-{}\n".format(name, str(meaning))
+		prep += "    subcase of {}\n".format(parents)
+		prep += "    form\n"
+		prep += "      constraints\n"
+		prep += "        self.f.orth <-- \"{}\"\n".format(name)
+		if meaning:
+			prep += "     meaning: {}".format(meaning)
+		return prep
+
+
+	# Generates preps by their frame. 
+	def build_prepositions(fn):
+		returned = ""
+		preps = sorted([lu for lu in fn.lexemes_to_frames.keys() if lu.split(".")[1] == "prep"])
+		for prep in preps:
+			frames = fn.get_frames_from_lu(prep)
+			for frame in frames:
+				orth, frame_name = prep.split(".")[0], frame.name
+				if len(orth.split(" "))<=1:
+					returned += ECGUtilities.build_preposition(orth, frame_name) + "\n\n"
+		return returned
+
+
+	# Generates prep cxn for that frame ("To-Goal")
+	def build_preposition(orth, frame_name):
+		returned = "construction {}-{}\n".format(orth, frame_name)
+		returned += "    subcase of Preposition\n"
+		returned += "    form\n"
+		returned += "    constraints\n"
+		returned += "      self.f.orth <-- \"{}\"\n".format(orth)
+		returned += "    meaning: {}".format(frame_name)
 		return returned
 
 
