@@ -13,6 +13,8 @@ from src.hypothesize_constructions import *
 
 from scripts import *
 
+import csv
+
 
 def main(data_path):
 	frame_path = data_path + "frame/"
@@ -24,10 +26,49 @@ def main(data_path):
 	fn.build_typesystem()
 	return fn, fnb
 
+def ecg_demo1():
+	""" Returns list of ECG schemas from FrameNet frames. """
+	return utils.generate_schemas_for_frames(fn.frames)
+
+def ecg_demo2():
+	""" Returns dictionary of types/tokens, valence cxns, and prepositions for a frame. """
+	return build_cxns_for_frame("Motion", fn, fnb, "Manner", "V")
+
+
+
 if __name__ == "__main__":
 	fn, fnb = main(sys.argv[1])
 
+
+
+
+	#DEMO: Build LUS for all frames
+	#final = []
+	#for frame in fn.frames:
+	#	print("Building lus for {}.".format(frame.name))
+	#	fnb.build_lus_for_frame(frame.name, fn)
+	#	for i in frame.annotations:
+	#		mini = [i.sentence.encode('utf-8'), i.lu, i.frame]
+	#		for k, v in i.text_to_valence.items():
+	#			mini.append(k)
+	#			mini.append(v.fe)
+	#			mini.append(v.pt)
+	#			if v.pt in ['INI', 'DNI', 'CNI']:
+	#				mini.append("---")
+	#			else:
+	#				mini.append(v.gf)
+	#		final.append(mini)
 	
+
+
+
+	
+
+	# DEMO: Writing to CSV file
+	#resultFile = open("output.csv", "w")
+	#wr = csv.writer(resultFile, dialect="excel")
+	#wr.writerows(final)
+
 	
 	# DEMO: SCHEMAS
 	#schemas = utils.generate_schemas_for_frames(fn.frames)

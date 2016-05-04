@@ -104,6 +104,7 @@ class FramenetBuilder(object):
                     frame.add_valences(lu.individual_valences)
                     frame.add_group_realizations(lu.valences)
                     frame.add_fe_realizations(lu.fe_realizations)
+                    frame.add_annotations(lu.annotations)
             frame.lexicalUnits = new_units
 
 
@@ -122,7 +123,9 @@ class FramenetBuilder(object):
                     fe_realization.add_annotation(annotation)
                     for valence in fe_realization.valences:
                         if annotation.ID in valence.annotationIDs:
+                            raw_text = annotation.fe_mappings[valence.fe]
                             valence.add_annotation(annotation)
+                            annotation.add_text_to_valence({raw_text: valence})
         return lu
 
 
@@ -148,7 +151,7 @@ class FramenetBuilder(object):
                 definition = child.text
             if tag == "subCorpus":
                 #print(child.attrib)
-                annotations += self.build_annotations(child)
+                annotations += self.build_annotations(child, name, frame)
         valences = valence.getchildren()
         lu = LexicalUnit(name, POS, frame, ID, definition, lexeme, original.status)
         if annotations:
@@ -159,7 +162,7 @@ class FramenetBuilder(object):
         lu.set_semtype(original.semtype)
         return lu
 
-    def build_annotations(self, subcorpus):
+    def build_annotations(self, subcorpus, lu, frame):
         """ Builds annotations from a subcorpus. """
         name = subcorpus.attrib['name']
         annotations = []
@@ -170,11 +173,25 @@ class FramenetBuilder(object):
                     sentence = c2.text
                     #print(sentence)
                     #print("\n")
-                if tag == "annotationSet":
+                elif tag == "annotationSet":
                     status = c2.attrib['status']
                     ID = int(c2.attrib['ID'])
                     if status in ["MANUAL", "AUTO_EDITED"]:
-                        new = Annotation(ID, status, sentence, name)
+                        new = Annotation(ID, status, sentence, name, lu, frame)
+                        
+                        for c3 in c2.getchildren():
+                            tag = c3.tag.replace(self.replace_tag, "")
+                            if c3.attrib['name'] == "FE":
+                                for c4 in c3.getchildren():
+                                    tag = c4.tag.replace(self.replace_tag, "")
+                                    name = c4.attrib['name']
+                                    if 'start' and 'end' in c4.attrib:
+                                        start, end = int(c4.attrib['start']), int(c4.attrib['end'])
+                                        raw_text = new.sentence[start:end+1]
+                                        new.add_fe_mapping({name: raw_text})
+                                    else:
+                                        new.add_fe_mapping({name: c4.attrib['itype']})
+
                         annotations.append(new)
             #print(child.tag)
         return annotations 
