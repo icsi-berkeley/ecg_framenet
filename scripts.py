@@ -106,7 +106,7 @@ def build_cxns_for_frame(frame_name, fn, fnb, role_name, pos, filter_value=False
 	valence_patterns = get_valence_patterns(frame)
 	collapsed_valences = collapse_valences_to_cxns(frame)
 
-	cxns_all = utils.generate_cxns_from_patterns(valence_patterns)
+	cxns_all = utils.generate_cxns_from_patterns(valence_patterns, collapsed=False)
 	cxns_collapsed = utils.generate_cxns_from_patterns(collapsed_valences)
 
 	roles = [v.fe for v in frame.individual_valences if v.pt.split("[")[0].lower() == "pp"]

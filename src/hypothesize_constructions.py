@@ -21,6 +21,7 @@ event_elements = ['Time', 'Place','Duration']
 
 def hypothesize_construction_from_pattern(valence_pattern, n=1):
     hypothesis = HypothesizedConstruction(valence_pattern.frame, n=n)
+    hypothesis.add_annotations(valence_pattern.annotations)
     total = sum(i.total for i in valence_pattern.valenceUnits)
     for unit in valence_pattern.valenceUnits:
         #if unit.pt not in ["2nd", "pp[because of]"]:

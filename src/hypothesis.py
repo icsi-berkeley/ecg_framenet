@@ -11,12 +11,18 @@ class HypothesizedConstruction(object):
 		self.parent = parent
 		self.constituents = []
 		self.n = n
+		self.annotations = []
 
 	def add_constituent(self, constituent):
 		self.constituents.append(constituent)
 
+	def add_annotations(self, annotations):
+		self.annotations += annotations
+
 	def format_to_cxn(self):
-		final = "construction {}_pattern_{}\n".format(self.frame, str(self.n))
+		annotations = "/* {} */\n".format(self.annotations)
+		final = annotations 
+		final += "construction {}_pattern_{}\n".format(self.frame, str(self.n))
 		final += "     subcase of {}\n".format(self.parent)
 		final += "     constructional\n"
 		final += "      constituents\n"

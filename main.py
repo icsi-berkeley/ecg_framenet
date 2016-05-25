@@ -30,23 +30,34 @@ def ecg_demo1():
 	""" Returns list of ECG schemas from FrameNet frames. """
 	return utils.generate_schemas_for_frames(fn.frames)
 
-def ecg_demo2():
+def ecg_demo2(frame="Motion", role="Manner", pos="V"):
 	""" Returns dictionary of types/tokens, valence cxns, and prepositions for a frame. """
-	return build_cxns_for_frame("Motion", fn, fnb, "Manner", "V")
+	return build_cxns_for_frame(frame, fn, fnb, role, pos)
 
 
 
 if __name__ == "__main__":
 	fn, fnb = main(sys.argv[1])
 
+	#fnb.build_lus_for_frame("Motion_directional", fn)
+	#s = fn.get_frame("Motion_directional")
+	#s.propagate_elements()
+
+
+
+	#valences = all_family_valences(s, fn, fnb, True)
+
+
+	#fnb.build_lus_for_frame("Fluidic_motion", fn)
+	#s = fn.get_frame("Fluidic_motion")
 
 
 
 	#DEMO: Build LUS for all frames
 	#final = []
 	#for frame in fn.frames:
-	#	print("Building lus for {}.".format(frame.name))
-	#	fnb.build_lus_for_frame(frame.name, fn)
+		#print("Building lus for {}.".format(frame.name))
+		#fnb.build_lus_for_frame(frame.name, fn)
 	#	for i in frame.annotations:
 	#		mini = [i.sentence.encode('utf-8'), i.lu, i.frame]
 	#		for k, v in i.text_to_valence.items():

@@ -101,6 +101,24 @@ class Frame(Node):
             final += element.name + "\n"
         return final
 
+    def propagate_elements(self):
+        """ testing... propagate elements from valences to highest point, e.g.
+        "Theme" instead of "Fluid" """
+        if len(self.individual_valences) <= 0:
+            print("Need to read in the LUs for this frame first.")
+            return None
+        for valence in self.individual_valences:
+            for fe_relation in self.fe_relations:
+                if valence.fe == fe_relation.fe2 and fe_relation.name == "Inheritance":
+                    valence.fe = fe_relation.fe1
+                    #print(valence.fe)
+        for group_re in self.group_realizations:
+            for valencePattern in group_re.valencePatterns:
+                for valence in valencePattern.valenceUnits:
+                    for fe_relation in self.fe_relations:
+                        if valence.fe == fe_relation.fe2 and fe_relation.name == "Inheritance":
+                            valence.fe = fe_relation.fe1
+
 
 class FrameElement(object):
     def __init__(self, name, abbrev, core, framename, semtype=None):
