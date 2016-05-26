@@ -51,6 +51,21 @@ if __name__ == "__main__":
 	#fnb.build_lus_for_frame("Fluidic_motion", fn)
 	#s = fn.get_frame("Fluidic_motion")
 
+	#DEMO: Build list of frames with all their relations
+	final_relations = [['Frame', 'Inherits from', 'Is Inherited by', 'Perspective on', 'Is Perspectivized in', 'Uses', 'Is Used by', 'Subframe of', 'Has Subframe(s)', 'Precedes', 'Is Preceded by', 'Is Inchoative of', 'Is Causative of', 'See also']]
+	for frame in fn.frames:
+		temp = [frame.name, None, None, None, None, None, None, None, None, None, None, None, None, None]
+		for relation in frame.relations:
+			if relation.relation_type in final_relations[0]:
+				index = final_relations[0].index(relation.relation_type)
+				s = [f.name for f in relation.related_frames]
+				temp[index] = s
+		final_relations.append(temp)
+
+
+
+	#DEMO: Gets parents and children
+	#inheritance = [[f.name, f.children, f.parents] for f in fn.frames]
 
 
 	#DEMO: Build LUS for all frames
