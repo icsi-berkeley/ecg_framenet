@@ -52,6 +52,7 @@ if __name__ == "__main__":
 	#s = fn.get_frame("Fluidic_motion")
 
 	#DEMO: Build list of frames with all their relations
+	"""
 	final_relations = [['Frame', 'Inherits from', 'Is Inherited by', 'Perspective on', 'Is Perspectivized in', 'Uses', 'Is Used by', 'Subframe of', 'Has Subframe(s)', 'Precedes', 'Is Preceded by', 'Is Inchoative of', 'Is Causative of', 'See also']]
 	for frame in fn.frames:
 		temp = [frame.name, None, None, None, None, None, None, None, None, None, None, None, None, None]
@@ -62,28 +63,53 @@ if __name__ == "__main__":
 				temp[index] = s
 		final_relations.append(temp)
 
+	"""
+
 
 
 	#DEMO: Gets parents and children
 	#inheritance = [[f.name, f.children, f.parents] for f in fn.frames]
 
 
-	#DEMO: Build LUS for all frames
-	#final = []
-	#for frame in fn.frames:
-		#print("Building lus for {}.".format(frame.name))
-		#fnb.build_lus_for_frame(frame.name, fn)
-	#	for i in frame.annotations:
-	#		mini = [i.sentence.encode('utf-8'), i.lu, i.frame]
-	#		for k, v in i.text_to_valence.items():
-	#			mini.append(k)
-	#			mini.append(v.fe)
-	#			mini.append(v.pt)
-	#			if v.pt in ['INI', 'DNI', 'CNI']:
-	#				mini.append("---")
-	#			else:
-	#				mini.append(v.gf)
-	#		final.append(mini)
+	#DEMO: Build LUS for all frames, put in tuple format with annotations
+
+	"""
+	final = []
+	for frame in fn.frames:
+		print("Building lus for {}.".format(frame.name))
+		fnb.build_lus_for_frame(frame.name, fn)
+		for i in frame.annotations:
+			mini = [i.sentence.encode('utf-8'), i.lu, i.frame]
+			for k, v in i.text_to_valence.items():
+				mini.append(k.encode('utf-8'))
+				mini.append(v.fe.encode('utf-8'))
+				mini.append(v.pt.encode('utf-8'))
+				if v.pt in ['INI', 'DNI', 'CNI']:
+					mini.append("---")
+				else:
+					mini.append(v.gf)
+			final.append(mini)
+	#"""
+
+
+	# DEMO 2: Build LUS for frames, put annotations in tuple format
+	# New line/row for each valence unit for each annotation
+	
+	final = []
+	for frame in fn.frames:
+		print("Building lus for {}.".format(frame.name))
+		fnb.build_lus_for_frame(frame.name, fn)
+		for i in frame.annotations:
+			for k, v in i.text_to_valence.items():
+				mini = [i.sentence.encode('utf-8'), i.lu.encode('utf-8'), i.frame.encode('utf-8')]
+				mini.append(k.encode('utf-8'))
+				mini.append(v.fe.encode('utf-8'))
+				mini.append(v.pt.encode('utf-8'))
+				if v.pt in ['INI', 'DNI', 'CNI']:
+					mini.append("---".encode('utf-8'))
+				else:
+					mini.append(v.gf.encode("utf-8"))
+				final.append(mini)
 	
 
 
