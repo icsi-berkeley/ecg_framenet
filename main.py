@@ -66,6 +66,35 @@ if __name__ == "__main__":
 	"""
 
 
+	# DEMO, OANA 3: Build 1200x1200 matrix of framesxframes, with relations filling each cell
+	# TODO: Use numpy?
+	#import numpy as np 
+
+	"""
+	final = []
+	first_row = [frame.name for frame in fn.frames]
+	first_row.insert(0, "SPACE")
+	final.append(first_row)
+	column = [frame.name for frame in fn.frames]
+	for value in column:
+		print(value)
+		new_row = [value]
+		for name in first_row:
+		#print("Comparing {} with {}".format(name, value))
+			frame = fn.get_frame(name)
+			if frame:
+				s = frame.is_related(value)
+				if s:
+					new_row.append(s)
+				else:
+					new_row.append("None")
+		final.append(new_row)
+	"""
+
+
+
+
+
 
 	#DEMO: Gets parents and children
 	#inheritance = [[f.name, f.children, f.parents] for f in fn.frames]
@@ -89,7 +118,7 @@ if __name__ == "__main__":
 				else:
 					mini.append(v.gf)
 			final.append(mini)
-	#"""
+	"""
 
 
 	# DEMO 2: Build LUS for frames, put annotations in tuple format

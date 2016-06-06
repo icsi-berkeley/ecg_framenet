@@ -45,6 +45,15 @@ class Frame(Node):
         self.fe_realizations = []
         self.annotations = []
 
+
+    def is_related(self, frame):
+        """ Checks if a string 'frame' is related to SELF. """
+        for relation in self.relations:
+            for related in relation.related_frames:
+                if related.name == frame: 
+                    return relation.relation_type
+        return False
+
     def add_valences(self, valences):
         self.individual_valences += valences
 
@@ -147,6 +156,8 @@ class FrameElement(object):
 
     def add_requires(self, required_element):
         self.requires.append(required_element)
+
+
 
 
 
