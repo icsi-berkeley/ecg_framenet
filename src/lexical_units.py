@@ -35,6 +35,7 @@ class LexicalUnit(object):
 		self.name = name
 		self.frame_name = frame_name
 		self.ID = ID
+		self.id = ID
 		self.frame = frame_name
 		self.definition = definition
 		self.valences = [] 

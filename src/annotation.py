@@ -17,11 +17,14 @@ class Annotation(object):
 		self.lu = lu
 		self.frame = frame
 
-	def add_fe_mapping(self, mapping):
-		""" Takes in a mapping of the form {'FE': __text__}. """
+	def add_fe_mapping(self, name, text):
+		""" Takes in a namne and text and puts it into the form {'FE': __text__}. """
 		#if text not in self.valence_mappings:
 		#	self.valence_mappings['text'] = dict()
 		#self.add_valence_mapping['text'].update(value)
+		mapping = {name: text}
+		if name in self.fe_mappings:
+			mapping[name] = "{} {}".format(self.fe_mappings[name], mapping[name])
 		self.fe_mappings.update(mapping)
 
 	def add_text_to_valence(self, ttv):

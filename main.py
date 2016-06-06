@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
 	# DEMO 2: Build LUS for frames, put annotations in tuple format
 	# New line/row for each valence unit for each annotation
-	
+	"""
 	final = []
 	for frame in fn.frames:
 		print("Building lus for {}.".format(frame.name))
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 				else:
 					mini.append(v.gf.encode("utf-8"))
 				final.append(mini)
-	
+	"""
 
 
 

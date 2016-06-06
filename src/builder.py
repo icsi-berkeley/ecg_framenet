@@ -190,9 +190,9 @@ class FramenetBuilder(object):
                                     if 'start' and 'end' in c4.attrib:
                                         start, end = int(c4.attrib['start']), int(c4.attrib['end'])
                                         raw_text = new.sentence[start:end+1]
-                                        new.add_fe_mapping({name: raw_text})
+                                        new.add_fe_mapping(name, raw_text)
                                     else:
-                                        new.add_fe_mapping({name: c4.attrib['itype']})
+                                        new.add_fe_mapping(name, c4.attrib['itype'])
 
                         annotations.append(new)
             #print(child.tag)
