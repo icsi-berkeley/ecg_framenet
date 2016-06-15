@@ -97,7 +97,7 @@ if __name__ == "__main__":
     final = []
     seen = []
     elements_of_interest = [] # Load these with other demo script from file
-    elements_of_interest.append("Path")
+    elements_of_interest.append("Path") # NOTE: You'll want to take this out, this was for testing
     for frame in fn.frames:
         print("Building lus and fes for {}".format(frame.name))
         fnb.build_lus_for_frame(frame.name, fn)
