@@ -101,19 +101,18 @@ if __name__ == "__main__":
     for frame in fn.frames:
         print("Building lus and fes for {}".format(frame.name))
         fnb.build_lus_for_frame(frame.name, fn)
-        for annotation in frame.annotations:
-            for k,v in annotation.fe_mappings.items():
-                if v in ['DNI', 'INI'] and k in elements_of_interest:
-                    fe = k
-                    for valence in frame.individual_valences:
-                        if valence.fe == fe and valence.pt not in ['DNI', 'INI']:
-                            lu = valence.lexeme
-                            for anno in valence.annotations:
-                                sentence, text = anno.sentence, anno.fe_mappings[fe]
-                                if "{}.{}".format(text, fe) not in seen:
-                                    new_line = [sentence, frame.name, lu, text, fe, valence.pt, valence.gf]
-                                    seen.append("{}.{}".format(text, fe))
-                                    final.append(new_line)
+        v1s = [v for v in frame.individual_valences if v.pt in ['DNI', 'INI'] and v.fe in elements_of_interest]
+        for v1 in v1s:
+            fe = v1.fe
+            valences = [valence for valence in frame.individual_valences if valence.fe == fe and valence.pt not in ['DNI', 'INI']]
+            for valence in valences:
+                lu = valence.lexeme
+                for anno in valence.annotations:
+                    sentence, text = anno.sentence, anno.fe_mappings[fe]
+                    if "{}.{}".format(text, fe) not in seen:
+                        new_line = [sentence, frame.name, lu, text, fe, valence.pt, valence.gf]
+                        seen.append("{}.{}".format(text, fe))
+                        final.append(new_line)
         
 
 
