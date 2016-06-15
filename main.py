@@ -92,8 +92,6 @@ if __name__ == "__main__":
     """
 
 
-    fnb.build_lus_for_frame("Motion", fn)
-    frame = fn.get_frame("Motion")
 
     #DEMO: DNI/INI Query
     final = []
