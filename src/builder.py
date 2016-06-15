@@ -89,7 +89,7 @@ class FramenetBuilder(object):
         """ Takes in a frame_name string, e.g. "Motion", and a FrameNet object "fn" and builds valence patterns. """
         frame = fn.get_frame(frame_name)
         if len(frame.lexicalUnits) <= 0:
-            print("No lexical units for frame.")
+            print("No lexical units for {}.".format(frame_name))
         elif type(frame.lexicalUnits[0]) == LexicalUnit:
             print("These lexical units have already been built.")
         else:
@@ -186,10 +186,10 @@ class FramenetBuilder(object):
                             if c3.attrib['name'] == "FE":
                                 for c4 in c3.getchildren():
                                     tag = c4.tag.replace(self.replace_tag, "")
-                                    name = c4.attrib['name'].encode('utf-8') # Encode it, otherwise it breaks on Windows
+                                    name = c4.attrib['name'] #.encode('utf-8') # Encode it, otherwise it breaks on Windows
                                     if 'start' and 'end' in c4.attrib:
                                         start, end = int(c4.attrib['start']), int(c4.attrib['end'])
-                                        raw_text = new.sentence[start:end+1].encode('utf-8')
+                                        raw_text = new.sentence[start:end+1].encode('utf-8').decode('utf-8')
                                         new.add_fe_mapping(name, raw_text)
                                     else:
                                         new.add_fe_mapping(name, c4.attrib['itype'])
