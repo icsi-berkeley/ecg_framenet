@@ -186,7 +186,7 @@ class FramenetBuilder(object):
                             if c3.attrib['name'] == "FE":
                                 for c4 in c3.getchildren():
                                     tag = c4.tag.replace(self.replace_tag, "")
-                                    name = c4.attrib['name'] #.encode('utf-8')
+                                    name = c4.attrib['name'].encode('utf-8') # Encode it, otherwise it breaks on Windows
                                     if 'start' and 'end' in c4.attrib:
                                         start, end = int(c4.attrib['start']), int(c4.attrib['end'])
                                         raw_text = new.sentence[start:end+1].encode('utf-8')
