@@ -115,6 +115,14 @@ for frame in fn.frames:
 
 
 
+# DEMO: FE Relations
+
+final = []
+for frame in fn.frames:
+    for fe in frame.fe_relations:
+        if fe.name in ['Inheritance', 'Perspective_on']:
+            final.append([frame.name, fe.superFrame, fe.fe1, fe.name, fe.fe2, fe.subFrame])
+
 
 
 # DEMO: Writing to CSV file

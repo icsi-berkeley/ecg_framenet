@@ -33,12 +33,7 @@ def main(data_path):
 if __name__ == "__main__":
     fn, fnb = main(sys.argv[1])
 
-    final = []
-    for frame in fn.frames:
-        for fe in frame.fe_relations:
-            if fe.name in ['Inheritance', 'Perspective_on']:
-                final.append([frame.name, fe.superFrame, fe.fe1, fe.name, fe.fe2, fe.subFrame])
-    #final = [[(fe.superFrame, fe.fe1, fe.name, fe.fe2, fe.subFrame) for fe in f.fe_relations if fe.name in ['Inheritance', 'Perspective_on']] for f in fn.frames]
+
 
 
     
