@@ -65,7 +65,7 @@ class FramenetBuilder(object):
         """ Reads in FE relations. Currently restricted to Inheritance, Using, and Causative_of."""
         tree = ET.parse(self.relations_file_path)
         root = tree.getroot()
-        children = [i for i in root.getchildren() if i.attrib['name'] in ["Inheritance", "Using", "Causative_of"]]
+        children = [i for i in root.getchildren() if i.attrib['name'] in ["Inheritance", "Using", "Causative_of", "Perspective_on"]]
         #for relation_type in children:
         #print(relation_type.attrib)
         for relation_type in children:
@@ -89,7 +89,8 @@ class FramenetBuilder(object):
         """ Takes in a frame_name string, e.g. "Motion", and a FrameNet object "fn" and builds valence patterns. """
         frame = fn.get_frame(frame_name)
         if len(frame.lexicalUnits) <= 0:
-            print("No lexical units for {}.".format(frame_name))
+            pass
+            #print("No lexical units for {}.".format(frame_name))
         elif type(frame.lexicalUnits[0]) == LexicalUnit:
             print("These lexical units have already been built.")
         else:
