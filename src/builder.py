@@ -170,6 +170,8 @@ class FramenetBuilder(object):
         name = subcorpus.attrib['name']
         annotations = []
         for child in subcorpus.getchildren():
+            if "metaphor" in child.attrib.keys():
+                print(child.attrib)
             for c2 in child.getchildren():
                 tag = c2.tag.replace(self.replace_tag, "")
                 if tag == "text":
@@ -177,6 +179,8 @@ class FramenetBuilder(object):
                     #print(sentence)
                     #print("\n")
                 elif tag == "annotationSet":
+                    if len(c2.attrib.keys()) > 3:
+                        print(c2.attrib)
                     status = c2.attrib['status']
                     ID = int(c2.attrib['ID'])
                     if status in ["MANUAL", "AUTO_EDITED"]:
@@ -184,16 +188,30 @@ class FramenetBuilder(object):
                         
                         for c3 in c2.getchildren():
                             tag = c3.tag.replace(self.replace_tag, "")
+
                             if c3.attrib['name'] == "FE":
-                                for c4 in c3.getchildren():
+                                for c4 in c3.getchildren(): 
                                     tag = c4.tag.replace(self.replace_tag, "")
                                     name = c4.attrib['name'] #.encode('utf-8') # Encode it, otherwise it breaks on Windows
                                     if 'start' and 'end' in c4.attrib:
                                         start, end = int(c4.attrib['start']), int(c4.attrib['end'])
                                         raw_text = new.sentence[start:end+1].encode('utf-8').decode('utf-8')
                                         new.add_fe_mapping(name, raw_text)
+                                        new.set_spans(name, (start, end))
                                     else:
                                         new.add_fe_mapping(name, c4.attrib['itype'])
+                            elif c3.attrib['name'] == "Sent":
+                                for c4 in c3.getchildren():
+                                    tag = c4.tag.replace(self.replace_tag, "")
+                                    if c4.attrib['name'] == "Metaphor":
+                                        new.set_metaphor()
+                            elif c3.attrib['name'] == "Target":
+                                for c4 in c3.getchildren():
+                                    if c4.attrib['name'] == "Target":
+                                        start, end = int(c4.attrib['start']), int(c4.attrib['end'])
+                                        new.set_target(new.sentence[start:end+1])
+
+
 
                         annotations.append(new)
             #print(child.tag)

@@ -13,9 +13,18 @@ class Annotation(object):
 		self.status = status
 		self.subCorpus = subCorpus
 		self.fe_mappings = dict()
+		self.spans = dict()
 		self.text_to_valence = dict()
 		self.lu = lu
 		self.frame = frame
+		self.metaphor = False
+		self.target = None
+
+	def set_target(self, target):
+		self.target = target
+
+	def set_spans(self, fe, spans):
+		self.spans[fe] = spans
 
 	def add_fe_mapping(self, name, text):
 		""" Takes in a namne and text and puts it into the form {'FE': __text__}. """
@@ -29,6 +38,9 @@ class Annotation(object):
 
 	def add_text_to_valence(self, ttv):
 		self.text_to_valence.update(ttv)
+
+	def set_metaphor(self, boolean=True):
+		self.metaphor=True
 
 
 	def __repr__(self):

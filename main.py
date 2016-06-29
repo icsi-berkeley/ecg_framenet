@@ -33,6 +33,8 @@ def main(data_path):
 if __name__ == "__main__":
     fn, fnb = main(sys.argv[1])
 
+    fnb.build_lus_for_frame("Motion", fn)
+
 
 
 
